@@ -244,3 +244,4 @@ fourni en amont). Ne jamais passer à la phase suivante avec des erreurs connues
 complète, fiscalité, paie, RH avancée, CRM avancé, marketplace, apps
 natives, IA avancée. L'architecture (multi-tenant, services, logs
 d'activité) est conçue pour permettre leur ajout ultérieur sans réécriture.
+"# parallelium" 
