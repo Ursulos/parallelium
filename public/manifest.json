@@ -1,0 +1,32 @@
+{
+    "name": "Parallelium",
+    "short_name": "Parallelium",
+    "description": "Gérez vos ventes, votre stock, vos clients et vos dépenses depuis un seul endroit.",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#481f89",
+    "orientation": "portrait-primary",
+    "lang": "fr",
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
