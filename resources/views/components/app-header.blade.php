@@ -7,7 +7,7 @@
 
     <div class="flex items-center gap-3">
         <button type="button" class="hidden h-10 w-10 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 sm:flex">
-            🔔
+            <x-icon name="bell" />
         </button>
 
         <div x-data="{ open: false }" class="relative">

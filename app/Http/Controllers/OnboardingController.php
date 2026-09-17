@@ -35,7 +35,7 @@ class OnboardingController extends Controller
     {
         Tenant::current()->update(['onboarding_completed' => true]);
 
-        return redirect()->route('dashboard')->with('status', 'Votre entreprise est prête 🎉');
+        return redirect()->route('dashboard')->with('status', 'Votre entreprise est prête');
     }
 
     public function skip()

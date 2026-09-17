@@ -9,6 +9,7 @@
     ];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'rounded-xl border px-4 py-3 text-sm ' . ($styles[$type] ?? $styles['info'])]) }}>
-    {{ $slot }}
+<div {{ $attributes->merge(['class' => 'flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm ' . ($styles[$type] ?? $styles['info'])]) }}>
+    <x-icon :name="$type" class="mt-0.5 shrink-0" />
+    <div>{{ $slot }}</div>
 </div>

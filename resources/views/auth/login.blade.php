@@ -1,5 +1,5 @@
 <x-layouts.guest title="Connexion — Parallelium">
-    <h2 class="text-2xl font-bold text-slate-900">Bon retour 👋</h2>
+    <h2 class="text-2xl font-bold text-slate-900">Bon retour</h2>
     <p class="mt-1 text-sm text-slate-500">Connectez-vous pour gérer votre entreprise.</p>
 
     @if (session('status'))

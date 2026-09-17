@@ -1,4 +1,4 @@
-@props(['routeName' => null, 'icon' => '•', 'label'])
+@props(['routeName' => null, 'icon' => 'circle', 'label'])
 
 @php
     $active = $routeName && request()->routeIs($routeName.'*');
@@ -14,7 +14,7 @@
                 ? 'bg-brand-50 text-brand-700'
                 : ($enabled ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 cursor-not-allowed')),
    ]) }}>
-    <span class="text-base">{{ $icon }}</span>
+    <x-icon :name="$icon" class="w-4 text-center text-base" />
     <span>{{ $label }}</span>
     @unless($enabled)
         <span class="ml-auto text-[10px] font-semibold uppercase text-slate-300">bientôt</span>

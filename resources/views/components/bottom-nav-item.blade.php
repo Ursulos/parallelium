@@ -7,6 +7,6 @@
 @endphp
 
 <a href="{{ $href }}" class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[11px] font-medium {{ $active ? 'text-brand-700' : ($enabled ? 'text-slate-500' : 'text-slate-300') }}">
-    <span class="text-lg">{{ $icon }}</span>
+    <x-icon :name="$icon" class="text-lg" />
     {{ $label }}
 </a>

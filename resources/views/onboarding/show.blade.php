@@ -1,6 +1,6 @@
 <x-layouts.onboarding title="Bienvenue — Parallelium">
     <p class="text-sm font-semibold text-brand-600">Étape 1 sur 1</p>
-    <h1 class="mt-1 text-2xl font-bold text-slate-900">Bienvenue sur Parallelium 👋</h1>
+    <h1 class="mt-1 text-2xl font-bold text-slate-900">Bienvenue sur Parallelium</h1>
     <p class="mt-2 text-sm text-slate-500">Parlez-nous un peu de {{ $company->name }} pour personnaliser votre espace.</p>
 
     <form method="POST" action="{{ route('onboarding.update') }}" class="mt-6 space-y-4">
@@ -32,7 +32,8 @@
     <form method="POST" action="{{ route('onboarding.finish') }}" class="mt-3">
         @csrf
         <x-button type="submit" variant="secondary" class="w-full justify-center" size="lg">
-            C'est prêt, direction le tableau de bord →
+            C'est prêt, direction le tableau de bord
+            <x-icon name="chevron-right" class="text-xs" />
         </x-button>
     </form>
 
