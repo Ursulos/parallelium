@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /*
+     * Palette "Parallelium" — inspirée des flyers de la marque :
+     * degrade bleu nuit -> violet -> magenta. Reservee aux en-tetes,
+     * a l'ecran de connexion et aux accents visuels ; le reste de
+     * l'application reste clair et sobre pour rester lisible au
+     * quotidien par une petite entreprise.
+     */
+    --color-brand-50: #f2f1fb;
+    --color-brand-100: #e6e3f7;
+    --color-brand-200: #c9c1ee;
+    --color-brand-300: #a690e0;
+    --color-brand-400: #8760d1;
+    --color-brand-500: #6a35c2;
+    --color-brand-600: #5928a8;
+    --color-brand-700: #481f89;
+    --color-brand-800: #33186a;
+    --color-brand-900: #1f1650;
+    --color-brand-950: #130f38;
+
+    --color-accent-50: #fdf1fc;
+    --color-accent-100: #fbe1f8;
+    --color-accent-200: #f5bff0;
+    --color-accent-300: #ec93e3;
+    --color-accent-400: #dd5ed0;
+    --color-accent-500: #c22fb0;
+    --color-accent-600: #a1218f;
+    --color-accent-700: #801a72;
+    --color-accent-800: #63175a;
+    --color-accent-900: #451143;
+
+    --gradient-brand: linear-gradient(135deg, var(--color-brand-900) 0%, var(--color-brand-500) 55%, var(--color-accent-500) 100%);
+}
+
+@layer utilities {
+    .bg-brand-gradient {
+        background-image: var(--gradient-brand);
+    }
+}
+
+@layer base {
+    body {
+        @apply bg-slate-50 text-slate-800 antialiased;
+    }
+}
