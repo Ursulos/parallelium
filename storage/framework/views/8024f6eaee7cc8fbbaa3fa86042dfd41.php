@@ -1,15 +1,15 @@
 <?php if (isset($component)) { $__componentOriginal5863877a5171c196453bfa0bd807e410 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal5863877a5171c196453bfa0bd807e410 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.layouts.app','data' => ['title' => 'Nouveau client']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.layouts.app','data' => ['title' => 'Nouvelle dépense']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('layouts.app'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Nouveau client']); ?>
+<?php $component->withAttributes(['title' => 'Nouvelle dépense']); ?>
     <div class="mb-5">
-        <h2 class="text-xl font-bold text-slate-900">Nouveau client</h2>
+        <h2 class="text-xl font-bold text-slate-900">Nouvelle dépense</h2>
     </div>
 
     <?php if($errors->any()): ?>
@@ -50,9 +50,9 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-        <form method="POST" action="<?php echo e(route('customers.store')); ?>">
-            <?php ($customer = null); ?>
-            <?php echo $__env->make('customers._form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+        <form method="POST" action="<?php echo e(route('expenses.store')); ?>" enctype="multipart/form-data">
+            <?php ($expense = null); ?>
+            <?php echo $__env->make('expenses._form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         </form>
      <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
@@ -74,4 +74,4 @@
 <?php $component = $__componentOriginal5863877a5171c196453bfa0bd807e410; ?>
 <?php unset($__componentOriginal5863877a5171c196453bfa0bd807e410); ?>
 <?php endif; ?>
-<?php /**PATH C:\xampp\htdocs\parallelium\resources\views/customers/create.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\parallelium\resources\views/expenses/create.blade.php ENDPATH**/ ?>

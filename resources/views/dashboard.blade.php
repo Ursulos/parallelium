@@ -16,17 +16,40 @@
     </p>
 
     <div class="mt-6 grid gap-4 lg:grid-cols-3">
-        <x-card class="lg:col-span-2">
-            <div class="flex items-center justify-between">
+        <x-card class="lg:col-span-2" :padded="false">
+            <div class="flex items-center justify-between px-5 pt-5">
                 <h3 class="text-sm font-semibold text-slate-700">Dernières ventes</h3>
+                @can('sales.view')
+                    <a href="{{ route('sales.index') }}" class="text-xs font-medium text-brand-600 hover:underline">Voir tout</a>
+                @endcan
             </div>
 
-            <x-empty-state
-                class="mt-4"
-                icon="sales"
-                title="Aucune vente pour le moment."
-                description="Le module Ventes arrive en Phase 4. Vos ventes récentes apparaîtront ici automatiquement.">
-            </x-empty-state>
+            @if ($recentSales->isEmpty())
+                <x-empty-state
+                    class="m-5"
+                    icon="sales"
+                    title="Aucune vente pour le moment."
+                    description="Vos ventes récentes apparaîtront ici automatiquement.">
+                    @can('sales.create')
+                        <x-slot:action>
+                            <x-button :href="route('sales.create')">Nouvelle vente</x-button>
+                        </x-slot:action>
+                    @endcan
+                </x-empty-state>
+            @else
+                <div class="mt-2 divide-y divide-slate-100">
+                    @foreach ($recentSales as $sale)
+                        <a href="{{ route('sales.show', $sale) }}" class="flex items-center justify-between px-5 py-2.5 text-sm hover:bg-slate-50">
+                            <div class="min-w-0">
+                                <p class="truncate font-medium text-slate-800">{{ $sale->customer?->name ?? 'Client de passage' }}</p>
+                                <p class="text-xs text-slate-400">{{ $sale->sale_number }} · {{ $sale->sold_at->format('d/m H:i') }}</p>
+                            </div>
+                            <p class="shrink-0 font-semibold text-slate-800"><x-money :amount="$sale->total_amount" /></p>
+                        </a>
+                    @endforeach
+                </div>
+                <div class="h-2"></div>
+            @endif
         </x-card>
 
         <x-card>
@@ -56,12 +79,13 @@
     <div class="mt-4 grid gap-4 lg:grid-cols-2">
         <x-card>
             <h3 class="text-sm font-semibold text-slate-700">Créances clients</h3>
-            @if ($kpis['customers_count'] > 0)
+            @if ($kpis['receivables'] > 0)
+                <p class="mt-3 text-2xl font-bold text-amber-600"><x-money :amount="$kpis['receivables']" /></p>
+                <p class="mt-1 text-xs text-slate-400">Montant restant à encaisser sur les ventes à crédit.</p>
+            @elseif ($kpis['customers_count'] > 0)
                 <div class="mt-3 flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-sm">
-                    <span class="text-slate-600">{{ $kpis['customers_count'] }} client{{ $kpis['customers_count'] > 1 ? 's' : '' }} enregistré{{ $kpis['customers_count'] > 1 ? 's' : '' }}</span>
-                    <a href="{{ route('customers.index') }}" class="font-medium text-brand-600 hover:underline">Voir</a>
+                    <span class="text-slate-600">{{ $kpis['customers_count'] }} client{{ $kpis['customers_count'] > 1 ? 's' : '' }} enregistré{{ $kpis['customers_count'] > 1 ? 's' : '' }}, aucune créance en cours.</span>
                 </div>
-                <p class="mt-2 text-xs text-slate-400">Les créances s'afficheront ici dès que le module Ventes sera disponible.</p>
             @else
                 <x-empty-state class="mt-4" icon="customers" title="Aucun client pour le moment." description="Ajoutez votre premier client pour commencer." />
             @endif
@@ -69,7 +93,21 @@
 
         <x-card>
             <h3 class="text-sm font-semibold text-slate-700">Dernières dépenses</h3>
-            <x-empty-state class="mt-4" icon="expenses" title="Aucune dépense pour le moment." description="Le module Dépenses arrive en Phase 5." />
+            @if ($recentExpenses->isEmpty())
+                <x-empty-state class="mt-4" icon="expenses" title="Aucune dépense pour le moment." description="Enregistrez votre première dépense pour la voir apparaître ici." />
+            @else
+                <div class="mt-3 space-y-2">
+                    @foreach ($recentExpenses as $expense)
+                        <a href="{{ route('expenses.index') }}" class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50">
+                            <span class="text-slate-600">{{ $expense->category->label() }}</span>
+                            <span class="font-semibold text-slate-800"><x-money :amount="$expense->amount" /></span>
+                        </a>
+                    @endforeach
+                </div>
+                <a href="{{ route('expenses.index') }}" class="mt-3 block text-center text-xs font-medium text-brand-600 hover:underline">
+                    Voir toutes les dépenses
+                </a>
+            @endif
         </x-card>
     </div>
 </x-layouts.app>

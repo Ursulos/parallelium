@@ -11,6 +11,9 @@
         </div>
 
         <div class="flex items-center gap-2">
+            @can('sales.create')
+                <x-button :href="route('sales.create')" size="sm"><x-icon name="plus" /> Nouvelle vente</x-button>
+            @endcan
             <x-button :href="route('customers.edit', $customer)" variant="secondary" size="sm">Modifier</x-button>
             <form method="POST" action="{{ route('customers.destroy', $customer) }}" onsubmit="return confirm('Supprimer ce client ?');">
                 @csrf
@@ -25,14 +28,11 @@
     @endif
 
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <x-stat-card label="Total des achats" value="—" icon="money" />
-        <x-stat-card label="Montant payé" value="—" icon="revenue" />
-        <x-stat-card label="Montant restant" value="—" icon="credit" />
-        <x-stat-card label="Dernière commande" value="—" icon="sales" />
+        <x-stat-card label="Total des achats" :value="\App\Support\Money::format($customer->totalPurchases())" icon="money" />
+        <x-stat-card label="Montant payé" :value="\App\Support\Money::format($customer->totalPaid())" icon="revenue" />
+        <x-stat-card label="Montant restant" :value="\App\Support\Money::format($customer->totalRemaining())" tone="brand" icon="credit" />
+        <x-stat-card label="Dernière commande" :value="$customer->lastOrderAt()?->format('d/m/Y') ?? '—'" icon="sales" />
     </div>
-    <p class="mt-2 text-xs text-slate-400">
-        Ces indicateurs s'alimenteront automatiquement dès que le module Ventes sera disponible (Phase 4).
-    </p>
 
     @if ($customer->credit_limit)
         <x-alert type="info" class="mt-4">
@@ -54,7 +54,25 @@
     <div class="mt-6 grid gap-4 lg:grid-cols-2">
         <x-card>
             <h3 class="mb-2 text-sm font-semibold text-slate-700">Historique des ventes</h3>
-            <x-empty-state icon="sales" title="Aucune vente pour le moment." description="Le module Ventes arrive en Phase 4." />
+            @php($sales = $customer->sales()->latest('sold_at')->limit(8)->get())
+            @if ($sales->isEmpty())
+                <x-empty-state icon="sales" title="Aucune vente pour le moment." description="Les ventes de ce client apparaîtront ici." />
+            @else
+                <div class="divide-y divide-slate-100">
+                    @foreach ($sales as $sale)
+                        <a href="{{ route('sales.show', $sale) }}" class="flex items-center justify-between py-2.5 text-sm hover:bg-slate-50">
+                            <div>
+                                <p class="font-medium text-slate-800">{{ $sale->sale_number }}</p>
+                                <p class="text-xs text-slate-400">{{ $sale->sold_at->format('d/m/Y') }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-slate-800"><x-money :amount="$sale->total_amount" /></p>
+                                <x-badge :tone="$sale->payment_status->tone()">{{ $sale->payment_status->label() }}</x-badge>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </x-card>
 
         <x-card>

@@ -1,15 +1,16 @@
 <?php if (isset($component)) { $__componentOriginal5863877a5171c196453bfa0bd807e410 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal5863877a5171c196453bfa0bd807e410 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.layouts.app','data' => ['title' => 'Modifier le client']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.layouts.app','data' => ['title' => 'Nouveau produit']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('layouts.app'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Modifier le client']); ?>
+<?php $component->withAttributes(['title' => 'Nouveau produit']); ?>
     <div class="mb-5">
-        <h2 class="text-xl font-bold text-slate-900"><?php echo e($customer->name); ?></h2>
+        <h2 class="text-xl font-bold text-slate-900">Nouveau produit</h2>
+        <p class="text-sm text-slate-500">Le stock initial sera enregistré comme un mouvement traçable.</p>
     </div>
 
     <?php if($errors->any()): ?>
@@ -50,8 +51,9 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-        <form method="POST" action="<?php echo e(route('customers.update', $customer)); ?>">
-            <?php echo $__env->make('customers._form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+        <form method="POST" action="<?php echo e(route('products.store')); ?>">
+            <?php ($product = null); ?>
+            <?php echo $__env->make('products._form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         </form>
      <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
@@ -73,4 +75,4 @@
 <?php $component = $__componentOriginal5863877a5171c196453bfa0bd807e410; ?>
 <?php unset($__componentOriginal5863877a5171c196453bfa0bd807e410); ?>
 <?php endif; ?>
-<?php /**PATH C:\xampp\htdocs\parallelium\resources\views/customers/edit.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\parallelium\resources\views/products/create.blade.php ENDPATH**/ ?>

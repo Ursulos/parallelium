@@ -5,12 +5,16 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Customer;
+use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Role;
+use App\Models\Sale;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\ProductService;
+use App\Services\SaleService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Jeu de données de démonstration ("Parallelium Demo") pour que le
@@ -70,6 +74,8 @@ class DemoCompanySeeder extends Seeder
 
         $this->seedCatalog($company);
         $this->seedCustomers($company);
+        $this->seedSales($company);
+        $this->seedExpenses($company);
     }
 
     protected function seedCatalog(Company $company): void
@@ -142,6 +148,105 @@ class DemoCompanySeeder extends Seeder
                 'address' => $c['address'] ?? null,
                 'credit_limit' => $c['credit_limit'] ?? null,
                 'is_active' => true,
+            ]);
+        }
+    }
+
+    /**
+     * Quelques ventes de démonstration, créées via SaleService (pas de
+     * données fictives injectées directement : le stock et les créances
+     * sont donc cohérents partout ailleurs dans l'appli).
+     */
+    protected function seedSales(Company $company): void
+    {
+        if (Sale::withoutTenantScope()->where('company_id', $company->id)->exists()) {
+            return;
+        }
+
+        $owner = User::where('company_id', $company->id)->where('email', 'owner@parallelium.demo')->first();
+        $products = Product::withoutTenantScope()->where('company_id', $company->id)->get()->keyBy('sku');
+        $customer = Customer::withoutTenantScope()->where('company_id', $company->id)->where('name', 'Épicerie Faneva')->first();
+
+        if (! $owner || $products->isEmpty()) {
+            return;
+        }
+
+        // SaleService s'appuie sur le contexte tenant courant (utilisateur
+        // authentifié) : on se connecte temporairement en tant que owner
+        // de la démo le temps de créer ces ventes.
+        $previousUserId = Auth::id();
+        Auth::loginUsingId($owner->id);
+
+        $saleService = app(SaleService::class);
+
+        // Vente au comptant, payée intégralement.
+        $sale1 = $saleService->create([
+            'items' => [
+                ['product_id' => $products['RIZ-001']->id, 'quantity' => 3],
+                ['product_id' => $products['EAU-001']->id, 'quantity' => 6],
+            ],
+            'paid_amount' => (3 * $products['RIZ-001']->selling_price) + (6 * $products['EAU-001']->selling_price),
+            'payment_method' => 'cash',
+        ], $owner);
+
+        // Vente à crédit (partiellement payée) pour un client fidèle.
+        $totalCredit = (2 * $products['HUI-001']->selling_price) + (5 * $products['THB-001']->selling_price);
+        $saleService->create([
+            'customer_id' => $customer?->id,
+            'items' => [
+                ['product_id' => $products['HUI-001']->id, 'quantity' => 2],
+                ['product_id' => $products['THB-001']->id, 'quantity' => 5],
+            ],
+            'paid_amount' => round($totalCredit / 2),
+            'payment_method' => 'mvola',
+        ], $owner);
+
+        // Vente annulée (pour illustrer la restauration de stock tracée).
+        $sale3 = $saleService->create([
+            'items' => [
+                ['product_id' => $products['SAV-001']->id, 'quantity' => 1],
+            ],
+            'paid_amount' => $products['SAV-001']->selling_price,
+            'payment_method' => 'cash',
+        ], $owner);
+        $saleService->cancel($sale3, $owner);
+
+        if ($previousUserId) {
+            Auth::loginUsingId($previousUserId);
+        } else {
+            Auth::logout();
+        }
+    }
+
+    protected function seedExpenses(Company $company): void
+    {
+        if (Expense::withoutTenantScope()->where('company_id', $company->id)->exists()) {
+            return;
+        }
+
+        $owner = User::where('company_id', $company->id)->where('email', 'owner@parallelium.demo')->first();
+
+        if (! $owner) {
+            return;
+        }
+
+        $expenses = [
+            ['category' => 'rent', 'supplier_name' => 'Bailleur Analakely', 'amount' => 350000, 'days_ago' => 3],
+            ['category' => 'transport', 'supplier_name' => null, 'amount' => 25000, 'days_ago' => 1],
+            ['category' => 'electricity', 'supplier_name' => 'Jirama', 'amount' => 60000, 'days_ago' => 5],
+            ['category' => 'merchandise', 'supplier_name' => 'Grossiste Analakely', 'amount' => 420000, 'days_ago' => 7],
+        ];
+
+        foreach ($expenses as $i => $e) {
+            Expense::create([
+                'company_id' => $company->id,
+                'user_id' => $owner->id,
+                'expense_number' => $company->nextDocumentNumber('expense'),
+                'category' => $e['category'],
+                'supplier_name' => $e['supplier_name'],
+                'amount' => $e['amount'],
+                'payment_method' => 'cash',
+                'expense_date' => now()->subDays($e['days_ago']),
             ]);
         }
     }

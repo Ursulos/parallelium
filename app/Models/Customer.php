@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
@@ -22,6 +23,11 @@ class Customer extends Model
             'is_active' => 'boolean',
             'credit_limit' => 'decimal:2',
         ];
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
     }
 
     public function scopeActive(Builder $query): Builder
@@ -42,7 +48,25 @@ class Customer extends Model
         });
     }
 
-    // Les relations vers les ventes/factures (historique d'achats, montant
-    // payé, créances) sont ajoutées en Phase 4 (Ventes) et Phase 6
-    // (Facturation), une fois ces modules réellement en place — voir §13.
+    public function totalPurchases(): float
+    {
+        return (float) $this->sales()->completed()->sum('total_amount');
+    }
+
+    public function totalPaid(): float
+    {
+        return (float) $this->sales()->completed()->sum('paid_amount');
+    }
+
+    public function totalRemaining(): float
+    {
+        return (float) $this->sales()->completed()->sum('remaining_amount');
+    }
+
+    public function lastOrderAt(): ?\Illuminate\Support\Carbon
+    {
+        return $this->sales()->completed()->latest('sold_at')->value('sold_at');
+    }
+
+    // Les factures (Phase 6) s'ajouteront ici de la même façon.
 }

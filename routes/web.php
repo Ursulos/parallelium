@@ -7,8 +7,10 @@ use App\Http\Controllers\Auth\RegisteredCompanyController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,8 +54,12 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('customers', CustomerController::class);
 
-        // Les modules suivants (ventes, dépenses, factures, rapports,
-        // employés, paramètres) sont ajoutés phase par phase — voir le
-        // cahier des charges §56.
+        Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show']);
+        Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])->name('sales.cancel');
+
+        Route::resource('expenses', ExpenseController::class)->except(['show']);
+
+        // Les modules suivants (factures, rapports, employés, paramètres)
+        // sont ajoutés phase par phase — voir le cahier des charges §56.
     });
 });
