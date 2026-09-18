@@ -4,8 +4,12 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredCompanyController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -39,8 +43,17 @@ Route::middleware('auth')->group(function () {
     Route::middleware('onboarding')->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-        // Les modules suivants (produits, catégories, stock, clients, ventes,
-        // dépenses, factures, rapports, employés, paramètres) sont ajoutés
-        // phase par phase — voir le cahier des charges §56.
+        Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('products', ProductController::class)->except(['show']);
+
+        Route::get('stock', [StockController::class, 'index'])->name('stock.index');
+        Route::post('stock/{product}/adjust', [StockController::class, 'adjust'])->name('stock.adjust');
+
+        Route::resource('customers', CustomerController::class);
+
+        // Les modules suivants (ventes, dépenses, factures, rapports,
+        // employés, paramètres) sont ajoutés phase par phase — voir le
+        // cahier des charges §56.
     });
 });

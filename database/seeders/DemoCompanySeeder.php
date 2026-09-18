@@ -2,17 +2,21 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Company;
+use App\Models\Customer;
+use App\Models\Product;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\ProductService;
 use Illuminate\Database\Seeder;
 
 /**
  * Jeu de données de démonstration ("Parallelium Demo") pour que le
  * tableau de bord soit immédiatement intéressant après installation.
- * Les données Produits/Ventes/Dépenses seront enrichies au fil des
- * phases 2 à 5 (voir §56 du cahier des charges), quand ces modules
+ * Les données Ventes/Clients/Dépenses seront enrichies au fil des
+ * phases 3 à 5 (voir §56 du cahier des charges), quand ces modules
  * existeront réellement.
  */
 class DemoCompanySeeder extends Seeder
@@ -62,6 +66,83 @@ class DemoCompanySeeder extends Seeder
                     'email_verified_at' => now(),
                 ]
             );
+        }
+
+        $this->seedCatalog($company);
+        $this->seedCustomers($company);
+    }
+
+    protected function seedCatalog(Company $company): void
+    {
+        if (Product::withoutTenantScope()->where('company_id', $company->id)->exists()) {
+            return; // déjà peuplé, ne pas dupliquer si on reseed
+        }
+
+        $categories = [
+            'Épicerie' => 'Produits alimentaires de base',
+            'Boissons' => 'Boissons fraîches et sèches',
+            'Hygiène' => 'Produits d\'hygiène et d\'entretien',
+        ];
+
+        $categoryIds = [];
+        foreach ($categories as $name => $description) {
+            $categoryIds[$name] = Category::create([
+                'company_id' => $company->id,
+                'name' => $name,
+                'description' => $description,
+                'is_active' => true,
+            ])->id;
+        }
+
+        $products = [
+            ['name' => 'Riz local 1kg', 'category' => 'Épicerie', 'sku' => 'RIZ-001', 'purchase' => 2800, 'sell' => 3500, 'stock' => 120, 'min' => 20, 'unit' => 'kg'],
+            ['name' => 'Huile alimentaire 1L', 'category' => 'Épicerie', 'sku' => 'HUI-001', 'purchase' => 6500, 'sell' => 8000, 'stock' => 40, 'min' => 10, 'unit' => 'litre'],
+            ['name' => 'Sucre 1kg', 'category' => 'Épicerie', 'sku' => 'SUC-001', 'purchase' => 3200, 'sell' => 4000, 'stock' => 4, 'min' => 15, 'unit' => 'kg'],
+            ['name' => 'Eau minérale 1.5L', 'category' => 'Boissons', 'sku' => 'EAU-001', 'purchase' => 1200, 'sell' => 1800, 'stock' => 96, 'min' => 24, 'unit' => 'unite'],
+            ['name' => 'THB 65cl', 'category' => 'Boissons', 'sku' => 'THB-001', 'purchase' => 2500, 'sell' => 3500, 'stock' => 60, 'min' => 12, 'unit' => 'unite'],
+            ['name' => 'Savon de Marseille', 'category' => 'Hygiène', 'sku' => 'SAV-001', 'purchase' => 1500, 'sell' => 2200, 'stock' => 3, 'min' => 10, 'unit' => 'unite'],
+        ];
+
+        $productService = app(ProductService::class);
+
+        foreach ($products as $p) {
+            $productService->create([
+                'company_id' => $company->id,
+                'category_id' => $categoryIds[$p['category']],
+                'name' => $p['name'],
+                'sku' => $p['sku'],
+                'purchase_price' => $p['purchase'],
+                'selling_price' => $p['sell'],
+                'stock_quantity' => $p['stock'],
+                'minimum_stock' => $p['min'],
+                'unit' => $p['unit'],
+                'is_active' => true,
+            ]);
+        }
+    }
+
+    protected function seedCustomers(Company $company): void
+    {
+        if (Customer::withoutTenantScope()->where('company_id', $company->id)->exists()) {
+            return;
+        }
+
+        $customers = [
+            ['name' => 'Hery Rakotondrabe', 'phone' => '034 12 345 67', 'address' => 'Analakely, Antananarivo'],
+            ['name' => 'Voahangy Ramaroson', 'phone' => '033 98 765 43', 'address' => 'Ankorondrano, Antananarivo'],
+            ['name' => 'Épicerie Faneva', 'phone' => '032 44 556 78', 'email' => 'faneva@example.com', 'credit_limit' => 100000],
+        ];
+
+        foreach ($customers as $c) {
+            Customer::create([
+                'company_id' => $company->id,
+                'name' => $c['name'],
+                'phone' => $c['phone'] ?? null,
+                'email' => $c['email'] ?? null,
+                'address' => $c['address'] ?? null,
+                'credit_limit' => $c['credit_limit'] ?? null,
+                'is_active' => true,
+            ]);
         }
     }
 }
