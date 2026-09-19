@@ -26,15 +26,20 @@ use RuntimeException;
  */
 class SaleService
 {
-    public function __construct(protected StockService $stockService)
-    {
+    public function __construct(
+        protected StockService $stockService,
+        protected SubscriptionService $subscriptionService,
+    ) {
     }
 
     public function create(array $data, User $user): Sale
     {
-        return DB::transaction(function () use ($data, $user) {
-            $company = Tenant::current();
+        $company = Tenant::current();
 
+        // Vérification de limite centralisée (§32) — voir SubscriptionService.
+        $this->subscriptionService->assertCanCreate($company, 'sales_per_month');
+
+        return DB::transaction(function () use ($data, $user, $company) {
             // 1. Charger les produits réels (jamais les prix du frontend),
             //    avec verrou pour éviter une vente en double sur un stock
             //    limité (course entre deux ventes simultanées).

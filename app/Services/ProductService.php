@@ -3,17 +3,32 @@
 namespace App\Services;
 
 use App\Enums\StockMovementType;
+use App\Models\Company;
 use App\Models\Product;
+use App\Support\Tenant;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
-    public function __construct(protected StockService $stockService)
-    {
+    public function __construct(
+        protected StockService $stockService,
+        protected SubscriptionService $subscriptionService,
+    ) {
     }
 
     public function create(array $data): Product
     {
+        // Tenant::current() est vide hors contexte HTTP authentifié (ex.
+        // seeders, commandes artisan) : dans ce cas on se base sur le
+        // company_id fourni explicitement plutôt que de planter, et on
+        // saute la vérification de plan (contexte administratif, jamais
+        // exposé à un utilisateur final).
+        $company = Tenant::current() ?? (isset($data['company_id']) ? Company::find($data['company_id']) : null);
+
+        if ($company && Tenant::check()) {
+            $this->subscriptionService->assertCanCreate($company, 'products');
+        }
+
         return DB::transaction(function () use ($data) {
             $initialStock = (int) ($data['stock_quantity'] ?? 0);
             unset($data['stock_quantity']);

@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
+use App\Services\SubscriptionService;
+use App\Support\Tenant;
 use Illuminate\Http\Request;
+use RuntimeException;
 
 class CustomerController extends Controller
 {
@@ -28,8 +31,14 @@ class CustomerController extends Controller
         return view('customers.create');
     }
 
-    public function store(StoreCustomerRequest $request)
+    public function store(StoreCustomerRequest $request, SubscriptionService $subscriptionService)
     {
+        try {
+            $subscriptionService->assertCanCreate(Tenant::current(), 'customers');
+        } catch (RuntimeException $e) {
+            return back()->withErrors(['name' => $e->getMessage()])->withInput();
+        }
+
         $customer = Customer::create($request->validated());
 
         return redirect()->route('customers.show', $customer)->with('status', 'Client ajouté.');

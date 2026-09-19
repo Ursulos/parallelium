@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Hors ligne — Parallelium</title>
+    <style>
+        :root { color-scheme: light; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #1f1650 0%, #6a35c2 55%, #c22fb0 100%);
+        }
+        .card {
+            width: 100%;
+            max-width: 380px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(31, 22, 80, 0.35);
+        }
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 999px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1f1650 0%, #6a35c2 55%, #c22fb0 100%);
+            color: #fff;
+            font-weight: 800;
+            font-size: 18px;
+        }
+        h1 { font-size: 18px; color: #0f172a; margin: 0 0 8px; }
+        p { font-size: 14px; color: #64748b; line-height: 1.5; margin: 0 0 20px; }
+        button {
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1f1650 0%, #6a35c2 55%, #c22fb0 100%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .hint { margin-top: 16px; font-size: 12px; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">P</div>
+        <h1>Pas de connexion internet</h1>
+        <p>
+            Parallelium a besoin d'une connexion pour fonctionner : vos ventes, votre stock
+            et vos données passent toujours par le serveur, pour rester fiables et à jour.
+            Reconnectez-vous puis réessayez.
+        </p>
+        <button onclick="window.location.reload()">Réessayer</button>
+        <p class="hint">Le mode hors ligne complet est prévu pour une prochaine version.</p>
+    </div>
+</body>
+</html>

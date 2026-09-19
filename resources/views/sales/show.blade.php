@@ -6,7 +6,19 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <x-button variant="secondary" size="sm" onclick="window.print()">Imprimer / PDF</x-button>
+            @can('invoices.view')
+                @if ($sale->invoice)
+                    <x-button :href="route('invoices.show', $sale->invoice)" variant="secondary" size="sm">Voir la facture</x-button>
+                @elseif (! $sale->isCancelled())
+                    @can('invoices.create')
+                        <form method="POST" action="{{ route('invoices.generate', $sale) }}">
+                            @csrf
+                            <x-button type="submit" variant="secondary" size="sm">Générer la facture</x-button>
+                        </form>
+                    @endcan
+                @endif
+            @endcan
+            <x-button variant="ghost" size="sm" onclick="window.print()">Imprimer le reçu</x-button>
             @can('sales.cancel')
                 @if (! $sale->isCancelled())
                     <form method="POST" action="{{ route('sales.cancel', $sale) }}" onsubmit="return confirm('Annuler cette vente ? Le stock sera restauré.');">

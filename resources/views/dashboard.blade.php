@@ -5,8 +5,24 @@
     </div>
 
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <x-stat-card label="Chiffre d'affaires (jour)" :value="\App\Support\Money::format($kpis['revenue_today'])" icon="money" />
-        <x-stat-card label="Chiffre d'affaires (mois)" :value="\App\Support\Money::format($kpis['revenue_month'])" icon="revenue" />
+        <x-stat-card label="Chiffre d'affaires (jour)" :value="\App\Support\Money::format($kpis['revenue_today'])" icon="money">
+            @if (! is_null($kpis['revenue_today_change']))
+                <x-slot:trend>
+                    <span class="{{ $kpis['revenue_today_change'] >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
+                        {{ $kpis['revenue_today_change'] >= 0 ? '+' : '' }}{{ $kpis['revenue_today_change'] }}% vs hier
+                    </span>
+                </x-slot:trend>
+            @endif
+        </x-stat-card>
+        <x-stat-card label="Chiffre d'affaires (mois)" :value="\App\Support\Money::format($kpis['revenue_month'])" icon="revenue">
+            @if (! is_null($kpis['revenue_month_change']))
+                <x-slot:trend>
+                    <span class="{{ $kpis['revenue_month_change'] >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
+                        {{ $kpis['revenue_month_change'] >= 0 ? '+' : '' }}{{ $kpis['revenue_month_change'] }}% vs mois dernier
+                    </span>
+                </x-slot:trend>
+            @endif
+        </x-stat-card>
         <x-stat-card label="Dépenses (mois)" :value="\App\Support\Money::format($kpis['expenses_month'])" icon="expenses" />
         <x-stat-card label="Résultat estimé" :value="\App\Support\Money::format($kpis['estimated_result'])" tone="brand" icon="result" />
     </div>
@@ -110,4 +126,112 @@
             @endif
         </x-card>
     </div>
+
+    <div class="mt-6 grid gap-4 lg:grid-cols-2">
+        <x-card>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Chiffre d'affaires — 7 derniers jours</h3>
+            @if (collect($charts['salesLast7Days'])->sum('total') > 0)
+                <canvas id="chart-sales-7d" height="180"></canvas>
+            @else
+                <p class="py-8 text-center text-sm text-slate-400">Pas encore de ventes cette semaine.</p>
+            @endif
+        </x-card>
+
+        <x-card>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Top produits vendus (ce mois-ci)</h3>
+            @if (count($charts['topProducts']) > 0)
+                <canvas id="chart-top-products" height="180"></canvas>
+            @else
+                <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
+            @endif
+        </x-card>
+
+        <x-card>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Ventes par catégorie (ce mois-ci)</h3>
+            @if (count($charts['salesByCategory']) > 0)
+                <canvas id="chart-sales-category" height="200"></canvas>
+            @else
+                <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
+            @endif
+        </x-card>
+
+        <x-card>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Dépenses par catégorie (ce mois-ci)</h3>
+            @if (count($charts['expensesByCategory']) > 0)
+                <canvas id="chart-expenses-category" height="200"></canvas>
+            @else
+                <p class="py-8 text-center text-sm text-slate-400">Aucune dépense ce mois-ci.</p>
+            @endif
+        </x-card>
+    </div>
+
+    @if (collect($charts['salesLast7Days'])->sum('total') > 0 || count($charts['topProducts']) > 0 || count($charts['salesByCategory']) > 0 || count($charts['expensesByCategory']) > 0)
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" integrity="sha512-e3nkTaqZ4qhAtI22fMPCH7ELiC4qhBQCiCTgKXWBTx6jHU0y3TKO5+ez+IEK9nnMx7DdMg0jZQBcwSj2Hn45Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const brand = '#6a35c2';
+                const palette = ['#6a35c2', '#c22fb0', '#8760d1', '#dd5ed0', '#481f89', '#f5bff0'];
+
+                const sales7d = @json($charts['salesLast7Days']);
+                const topProducts = @json($charts['topProducts']);
+                const salesByCategory = @json($charts['salesByCategory']);
+                const expensesByCategory = @json($charts['expensesByCategory']);
+
+                const el7d = document.getElementById('chart-sales-7d');
+                if (el7d) {
+                    new Chart(el7d, {
+                        type: 'bar',
+                        data: {
+                            labels: sales7d.map(d => d.label),
+                            datasets: [{ data: sales7d.map(d => d.total), backgroundColor: brand, borderRadius: 6 }],
+                        },
+                        options: {
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true } },
+                        },
+                    });
+                }
+
+                const elTop = document.getElementById('chart-top-products');
+                if (elTop) {
+                    new Chart(elTop, {
+                        type: 'bar',
+                        data: {
+                            labels: topProducts.map(p => p.label),
+                            datasets: [{ data: topProducts.map(p => p.quantity), backgroundColor: palette, borderRadius: 6 }],
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            plugins: { legend: { display: false } },
+                            scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
+                        },
+                    });
+                }
+
+                const elCat = document.getElementById('chart-sales-category');
+                if (elCat) {
+                    new Chart(elCat, {
+                        type: 'doughnut',
+                        data: {
+                            labels: salesByCategory.map(c => c.label),
+                            datasets: [{ data: salesByCategory.map(c => c.total), backgroundColor: palette }],
+                        },
+                        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } },
+                    });
+                }
+
+                const elExp = document.getElementById('chart-expenses-category');
+                if (elExp) {
+                    new Chart(elExp, {
+                        type: 'doughnut',
+                        data: {
+                            labels: expensesByCategory.map(c => c.label),
+                            datasets: [{ data: expensesByCategory.map(c => c.total), backgroundColor: palette }],
+                        },
+                        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } },
+                    });
+                }
+            });
+        </script>
+    @endif
 </x-layouts.app>

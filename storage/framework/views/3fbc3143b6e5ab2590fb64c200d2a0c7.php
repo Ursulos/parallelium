@@ -24,7 +24,14 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes(['label' => 'Chiffre d\'affaires (jour)','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(\App\Support\Money::format($kpis['revenue_today'])),'icon' => 'money']); ?>
-<?php echo $__env->renderComponent(); ?>
+            <?php if(! is_null($kpis['revenue_today_change'])): ?>
+                 <?php $__env->slot('trend', null, []); ?> 
+                    <span class="<?php echo e($kpis['revenue_today_change'] >= 0 ? 'text-emerald-600' : 'text-red-500'); ?>">
+                        <?php echo e($kpis['revenue_today_change'] >= 0 ? '+' : ''); ?><?php echo e($kpis['revenue_today_change']); ?>% vs hier
+                    </span>
+                 <?php $__env->endSlot(); ?>
+            <?php endif; ?>
+         <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal527fae77f4db36afc8c8b7e9f5f81682)): ?>
 <?php $attributes = $__attributesOriginal527fae77f4db36afc8c8b7e9f5f81682; ?>
@@ -44,7 +51,14 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes(['label' => 'Chiffre d\'affaires (mois)','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(\App\Support\Money::format($kpis['revenue_month'])),'icon' => 'revenue']); ?>
-<?php echo $__env->renderComponent(); ?>
+            <?php if(! is_null($kpis['revenue_month_change'])): ?>
+                 <?php $__env->slot('trend', null, []); ?> 
+                    <span class="<?php echo e($kpis['revenue_month_change'] >= 0 ? 'text-emerald-600' : 'text-red-500'); ?>">
+                        <?php echo e($kpis['revenue_month_change'] >= 0 ? '+' : ''); ?><?php echo e($kpis['revenue_month_change']); ?>% vs mois dernier
+                    </span>
+                 <?php $__env->endSlot(); ?>
+            <?php endif; ?>
+         <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal527fae77f4db36afc8c8b7e9f5f81682)): ?>
 <?php $attributes = $__attributesOriginal527fae77f4db36afc8c8b7e9f5f81682; ?>
@@ -409,6 +423,186 @@
 <?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
 <?php endif; ?>
     </div>
+
+    <div class="mt-6 grid gap-4 lg:grid-cols-2">
+        <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Chiffre d'affaires — 7 derniers jours</h3>
+            <?php if(collect($charts['salesLast7Days'])->sum('total') > 0): ?>
+                <canvas id="chart-sales-7d" height="180"></canvas>
+            <?php else: ?>
+                <p class="py-8 text-center text-sm text-slate-400">Pas encore de ventes cette semaine.</p>
+            <?php endif; ?>
+         <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $attributes = $__attributesOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__attributesOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $component = $__componentOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+
+        <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Top produits vendus (ce mois-ci)</h3>
+            <?php if(count($charts['topProducts']) > 0): ?>
+                <canvas id="chart-top-products" height="180"></canvas>
+            <?php else: ?>
+                <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
+            <?php endif; ?>
+         <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $attributes = $__attributesOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__attributesOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $component = $__componentOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+
+        <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Ventes par catégorie (ce mois-ci)</h3>
+            <?php if(count($charts['salesByCategory']) > 0): ?>
+                <canvas id="chart-sales-category" height="200"></canvas>
+            <?php else: ?>
+                <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
+            <?php endif; ?>
+         <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $attributes = $__attributesOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__attributesOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $component = $__componentOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+
+        <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Dépenses par catégorie (ce mois-ci)</h3>
+            <?php if(count($charts['expensesByCategory']) > 0): ?>
+                <canvas id="chart-expenses-category" height="200"></canvas>
+            <?php else: ?>
+                <p class="py-8 text-center text-sm text-slate-400">Aucune dépense ce mois-ci.</p>
+            <?php endif; ?>
+         <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $attributes = $__attributesOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__attributesOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $component = $__componentOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+    </div>
+
+    <?php if(collect($charts['salesLast7Days'])->sum('total') > 0 || count($charts['topProducts']) > 0 || count($charts['salesByCategory']) > 0 || count($charts['expensesByCategory']) > 0): ?>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" integrity="sha512-e3nkTaqZ4qhAtI22fMPCH7ELiC4qhBQCiCTgKXWBTx6jHU0y3TKO5+ez+IEK9nnMx7DdMg0jZQBcwSj2Hn45Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const brand = '#6a35c2';
+                const palette = ['#6a35c2', '#c22fb0', '#8760d1', '#dd5ed0', '#481f89', '#f5bff0'];
+
+                const sales7d = <?php echo json_encode($charts['salesLast7Days'], 15, 512) ?>;
+                const topProducts = <?php echo json_encode($charts['topProducts'], 15, 512) ?>;
+                const salesByCategory = <?php echo json_encode($charts['salesByCategory'], 15, 512) ?>;
+                const expensesByCategory = <?php echo json_encode($charts['expensesByCategory'], 15, 512) ?>;
+
+                const el7d = document.getElementById('chart-sales-7d');
+                if (el7d) {
+                    new Chart(el7d, {
+                        type: 'bar',
+                        data: {
+                            labels: sales7d.map(d => d.label),
+                            datasets: [{ data: sales7d.map(d => d.total), backgroundColor: brand, borderRadius: 6 }],
+                        },
+                        options: {
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true } },
+                        },
+                    });
+                }
+
+                const elTop = document.getElementById('chart-top-products');
+                if (elTop) {
+                    new Chart(elTop, {
+                        type: 'bar',
+                        data: {
+                            labels: topProducts.map(p => p.label),
+                            datasets: [{ data: topProducts.map(p => p.quantity), backgroundColor: palette, borderRadius: 6 }],
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            plugins: { legend: { display: false } },
+                            scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
+                        },
+                    });
+                }
+
+                const elCat = document.getElementById('chart-sales-category');
+                if (elCat) {
+                    new Chart(elCat, {
+                        type: 'doughnut',
+                        data: {
+                            labels: salesByCategory.map(c => c.label),
+                            datasets: [{ data: salesByCategory.map(c => c.total), backgroundColor: palette }],
+                        },
+                        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } },
+                    });
+                }
+
+                const elExp = document.getElementById('chart-expenses-category');
+                if (elExp) {
+                    new Chart(elExp, {
+                        type: 'doughnut',
+                        data: {
+                            labels: expensesByCategory.map(c => c.label),
+                            datasets: [{ data: expensesByCategory.map(c => c.total), backgroundColor: palette }],
+                        },
+                        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } },
+                    });
+                }
+            });
+        </script>
+    <?php endif; ?>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal5863877a5171c196453bfa0bd807e410)): ?>

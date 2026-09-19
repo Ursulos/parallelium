@@ -7,10 +7,14 @@ use App\Http\Controllers\Auth\RegisteredCompanyController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,16 +23,16 @@ Route::redirect('/', '/login');
 // --- Invités ---
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredCompanyController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredCompanyController::class, 'store']);
+    Route::post('register', [RegisteredCompanyController::class, 'store'])->middleware('throttle:6,1');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:6,1');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store')->middleware('throttle:6,1');
 });
 
 // --- Authentifiés ---
@@ -59,7 +63,21 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('expenses', ExpenseController::class)->except(['show']);
 
-        // Les modules suivants (factures, rapports, employés, paramètres)
-        // sont ajoutés phase par phase — voir le cahier des charges §56.
+        Route::resource('invoices', InvoiceController::class)->only(['index', 'show']);
+        Route::post('sales/{sale}/invoice', [InvoiceController::class, 'generate'])->name('invoices.generate');
+        Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+
+        Route::resource('employees', EmployeeController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::get('sales', [ReportController::class, 'sales'])->name('sales');
+            Route::get('expenses', [ReportController::class, 'expenses'])->name('expenses');
+            Route::get('products', [ReportController::class, 'products'])->name('products');
+            Route::get('customers', [ReportController::class, 'customers'])->name('customers');
+        });
+
+        Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('settings/subscription', [SettingsController::class, 'changePlan'])->name('settings.subscription');
     });
 });

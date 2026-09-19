@@ -10,6 +10,14 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    // IMPORTANT : ne JAMAIS ajouter le trait BelongsToCompany ici.
+    // Le guard d'authentification résout l'utilisateur courant via
+    // Auth::user(), qui interroge ce modèle. Or BelongsToCompany
+    // détermine l'entreprise courante via Tenant::check(), qui appelle
+    // lui-même Auth::user() — cela crée une récursion infinie dès la
+    // connexion (500 systématique après login). L'isolation tenant sur
+    // User se fait donc à la main : ->where('company_id', Tenant::id())
+    // explicitement partout où c'est nécessaire (voir EmployeeController).
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [

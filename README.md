@@ -16,11 +16,13 @@ factures et rapports, depuis un seul endroit, pensé mobile-first.
 - [Base de données](#base-de-données)
 - [Lancement en local](#lancement-en-local)
 - [Comptes de démonstration](#comptes-de-démonstration)
+- [Administration plateforme](#administration-plateforme)
 - [Tests](#tests)
 - [Build production](#build-production)
 - [PWA](#pwa)
 - [Structure du projet](#structure-du-projet)
 - [État d'avancement](#état-davancement)
+- [Sécurité](#sécurité)
 
 ---
 
@@ -149,6 +151,28 @@ Puis ouvrez **http://localhost:8000**.
 
 ---
 
+## Administration plateforme
+
+Un panneau **admin plateforme** (l'éditeur de Parallelium), distinct des
+comptes d'entreprise, permet de voir toutes les entreprises inscrites, les
+suspendre/réactiver, et changer leur plan manuellement.
+
+- URL : **`/admin/login`**
+- Compte créé par le seeder : `admin@parallelium.app` / `password`
+- Authentification **totalement séparée** (guard `admin`, table `admins`) :
+  un compte d'entreprise ne peut jamais accéder à `/admin/*`, et
+  inversement (voir `tests/Feature/Admin/AdminPanelTest.php`).
+
+⚠️ **Change le mot de passe de ce compte avant toute mise en ligne
+publique** — modifie-le directement en base ou via `php artisan tinker` :
+
+```
+php artisan tinker
+>>> \App\Models\Admin::first()->update(['password' => 'un-mot-de-passe-fort']);
+```
+
+---
+
 ## Tests
 
 ```
@@ -228,20 +252,71 @@ fourni en amont). Ne jamais passer à la phase suivante avec des erreurs connues
 - [x] **Phase 1 — Infrastructure** : Laravel, MySQL, Tailwind, Alpine, auth,
       layout desktop/mobile, design system, multi-tenant, rôles/permissions,
       onboarding, PWA (manifest + service worker), seeders, tests d'isolation.
-- [ ] Phase 2 — Produits, catégories, stock
-- [ ] Phase 3 — Clients
-- [ ] Phase 4 — Ventes, paiements, crédit
-- [ ] Phase 5 — Dépenses
-- [ ] Phase 6 — Facturation, reçus, PDF
-- [ ] Phase 7 — Dashboard (KPI réels, graphiques, alertes)
-- [ ] Phase 8 — Employés, rôles avancés
-- [ ] Phase 9 — Rapports
-- [ ] Phase 10 — Abonnements (paiement)
-- [ ] Phase 11 — PWA avancée
-- [ ] Phase 12 — Tests, sécurité, optimisation, polish UI
+- [x] **Phase 2 — Produits, catégories, stock** : StockService (mouvements
+      tracés), ProductService, alertes de stock faible.
+- [x] **Phase 3 — Clients** : fiche client, recherche, limite de crédit.
+- [x] **Phase 4 — Ventes** : panier, SaleService transactionnel, paiement
+      partiel/crédit, annulation avec restauration de stock.
+- [x] **Phase 5 — Dépenses** : catégories fixes, justificatif sécurisé
+      (type MIME, taille, nom de fichier généré).
+- [x] **Phase 6 — Facturation** : génération depuis une vente, PDF
+      (barryvdh/laravel-dompdf), numérotation par entreprise.
+- [x] **Phase 7 — Dashboard** : DashboardService, tendances de période,
+      4 graphiques (CA 7 jours, ventes/catégorie, dépenses/catégorie, top
+      produits).
+- [x] **Phase 8 — Employés** : invitation par e-mail, rôles, limite de plan.
+- [x] **Phase 9 — Rapports** : ventes/dépenses/produits/clients, filtres
+      de période, export CSV et PDF.
+- [x] **Phase 10 — Abonnements** : SubscriptionService centralisé, page
+      Paramètres/tarification (Free / Starter 15 000 Ar / Business 45 000 Ar).
+- [x] **Phase 11 — PWA avancée** : page hors-ligne honnête, bannière
+      d'installation (Android + iOS), détection de mise à jour, shortcuts.
+- [x] **Phase 12 — Tests, sécurité, optimisation, polish** : voir
+      [Sécurité](#sécurité) ci-dessous.
 
 **Non prévu pour la V1** (voir §5 du cahier des charges) : comptabilité
 complète, fiscalité, paie, RH avancée, CRM avancé, marketplace, apps
 natives, IA avancée. L'architecture (multi-tenant, services, logs
 d'activité) est conçue pour permettre leur ajout ultérieur sans réécriture.
-"# parallelium" 
+
+---
+
+## Sécurité
+
+Ce qui est couvert dès la V1 (cahier des charges §33) :
+
+- **Isolation multi-tenant** : scope Eloquent automatique sur toutes les
+  ressources métier (`BelongsToCompany`), y compris via le model binding
+  implicite de route — accéder à la ressource d'une autre entreprise par
+  son ID renvoie une 404, jamais une fuite de données. Exception notable :
+  `User` n'a **jamais** ce scope automatique (il provoquerait une boucle
+  infinie à la connexion, voir le commentaire dans `app/Models/User.php`) ;
+  son isolation est assurée manuellement dans `EmployeeController`.
+- **CSRF** : jeton sur tous les formulaires (protection Laravel par défaut).
+- **Authentification** : mots de passe hachés (bcrypt), limitation du taux
+  de tentatives sur la connexion (5/minute) et sur l'inscription /
+  réinitialisation de mot de passe (6/minute).
+- **Autorisation** : chaque action passe par une permission (`$this->
+  authorize('sales.create')`), jamais par une vérification de rôle codée
+  en dur dans une vue.
+- **Validation serveur systématique** : tous les montants (sous-total,
+  remise, total, paiement) sont **recalculés côté serveur** à partir des
+  prix en base, jamais acceptés tels quels depuis le navigateur (§49).
+- **Uploads** : type MIME et taille strictement limités (justificatifs de
+  dépense), nom de fichier généré par Laravel — jamais le nom original.
+- **Mass assignment** : chaque écriture passe par un Form Request avec une
+  liste explicite de champs validés ; un champ comme `company_id` n'est
+  jamais dans cette liste, donc jamais modifiable depuis le formulaire.
+- **En-têtes HTTP** : `X-Frame-Options`, `X-Content-Type-Options`,
+  `Referrer-Policy`, `Permissions-Policy` sur toutes les réponses
+  (`App\Http\Middleware\SecurityHeaders`).
+- **Erreurs** : pages 404/403/419/500/503 personnalisées, aucune trace
+  technique affichée à l'utilisateur (à condition que `APP_DEBUG=false`
+  en production — voir plus bas).
+
+**Avant une mise en production**, en plus des points ci-dessus :
+
+- `.env` : `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY` généré.
+- HTTPS obligatoire (cookies de session sécurisés).
+- Sauvegardes régulières de la base MySQL.
+- `php artisan config:cache && php artisan route:cache && php artisan view:cache`.

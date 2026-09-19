@@ -46,14 +46,28 @@ return [
     |
     | Source de vérité pour les limites de chaque plan. Ne jamais coder ces
     | valeurs en dur dans les contrôleurs : passer par
-    | App\Services\SubscriptionService::limitFor($company, 'products').
+    | App\Services\SubscriptionService::assertCanCreate($company, 'products').
     | "null" = illimité.
+    |
+    | Tarification (Ariary, TTC) pensée pour le marché malgache :
+    | le SMIG 2026 est de 300 000 Ar/mois et la médiane du secteur formel
+    | se situe autour de 300 000-1 000 000 Ar/mois (source : GEM/Fivmpama/
+    | CTM, accord du 9 février 2026 ; INSTAT). Objectif explicite du
+    | produit : maximiser le nombre de clients, donc un palier gratuit
+    | réellement utilisable, et un premier palier payant abordable
+    | (~5 % du SMIG/mois, soit moins de 700 Ar/jour) avant un palier
+    | "Business" pour les commerces multi-employés. Prix annuel = 10 mois
+    | payés sur 12 (2 mois offerts), pour encourager la rétention malgré
+    | l'absence de prélèvement automatique en V1 (paiement mobile money
+    | manuel pour l'instant — voir §32 du cahier des charges).
     |
     */
     'plans' => [
         'free' => [
             'label' => 'Free',
+            'tagline' => 'Pour démarrer sans risque, à vie.',
             'price' => 0,
+            'price_yearly' => 0,
             'limits' => [
                 'products' => 50,
                 'users' => 1,
@@ -64,7 +78,9 @@ return [
         ],
         'starter' => [
             'label' => 'Starter',
-            'price' => 20000,
+            'tagline' => 'Pour une boutique qui vend tous les jours.',
+            'price' => 15000,
+            'price_yearly' => 150000,
             'limits' => [
                 'products' => 500,
                 'users' => 3,
@@ -75,7 +91,9 @@ return [
         ],
         'business' => [
             'label' => 'Business',
-            'price' => 50000,
+            'tagline' => 'Pour un commerce avec plusieurs employés.',
+            'price' => 45000,
+            'price_yearly' => 450000,
             'limits' => [
                 'products' => null,
                 'users' => null,

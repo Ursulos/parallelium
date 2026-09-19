@@ -77,7 +77,22 @@
 
         <x-card>
             <h3 class="mb-2 text-sm font-semibold text-slate-700">Factures</h3>
-            <x-empty-state icon="invoices" title="Aucune facture pour le moment." description="Le module Facturation arrive en Phase 6." />
+            @php($invoices = \App\Models\Invoice::whereHas('sale', fn ($q) => $q->where('customer_id', $customer->id))->with('sale')->latest('issued_at')->limit(8)->get())
+            @if ($invoices->isEmpty())
+                <x-empty-state icon="invoices" title="Aucune facture pour le moment." description="Générez une facture depuis une vente de ce client." />
+            @else
+                <div class="divide-y divide-slate-100">
+                    @foreach ($invoices as $invoice)
+                        <a href="{{ route('invoices.show', $invoice) }}" class="flex items-center justify-between py-2.5 text-sm hover:bg-slate-50">
+                            <div>
+                                <p class="font-medium text-slate-800">{{ $invoice->invoice_number }}</p>
+                                <p class="text-xs text-slate-400">{{ $invoice->issued_at->format('d/m/Y') }}</p>
+                            </div>
+                            <x-badge :tone="$invoice->status->tone()">{{ $invoice->status->label() }}</x-badge>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </x-card>
     </div>
 </x-layouts.app>

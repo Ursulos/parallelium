@@ -52,6 +52,23 @@ class Company extends Model
         return $this->hasMany(ActivityLog::class);
     }
 
+    // Relations utilisées par le panneau admin plateforme (statistiques
+    // par entreprise) — voir App\Http\Controllers\Admin\CompanyController.
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
     /**
      * Devise formatée selon config('parallelium.currencies').
      * Ne jamais coder le symbole "Ar" en dur dans les vues : utiliser

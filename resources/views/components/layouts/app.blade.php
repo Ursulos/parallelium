@@ -27,5 +27,7 @@
 
     <x-app-bottom-nav />
     <x-quick-actions-sheet />
+    <x-pwa-install-banner />
+    <x-pwa-update-banner />
 </body>
 </html>

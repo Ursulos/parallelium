@@ -141,6 +141,46 @@
 <?php $component = $__componentOriginal9c0815fd7b7a89619f3ea930812a21fd; ?>
 <?php unset($__componentOriginal9c0815fd7b7a89619f3ea930812a21fd); ?>
 <?php endif; ?>
+    <?php if (isset($component)) { $__componentOriginal5b6745fadc65cdc3052b92baf193c2e8 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal5b6745fadc65cdc3052b92baf193c2e8 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.pwa-install-banner','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('pwa-install-banner'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal5b6745fadc65cdc3052b92baf193c2e8)): ?>
+<?php $attributes = $__attributesOriginal5b6745fadc65cdc3052b92baf193c2e8; ?>
+<?php unset($__attributesOriginal5b6745fadc65cdc3052b92baf193c2e8); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal5b6745fadc65cdc3052b92baf193c2e8)): ?>
+<?php $component = $__componentOriginal5b6745fadc65cdc3052b92baf193c2e8; ?>
+<?php unset($__componentOriginal5b6745fadc65cdc3052b92baf193c2e8); ?>
+<?php endif; ?>
+    <?php if (isset($component)) { $__componentOriginal61a8d48b8f86749719c72cd597ee85ea = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal61a8d48b8f86749719c72cd597ee85ea = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.pwa-update-banner','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('pwa-update-banner'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal61a8d48b8f86749719c72cd597ee85ea)): ?>
+<?php $attributes = $__attributesOriginal61a8d48b8f86749719c72cd597ee85ea; ?>
+<?php unset($__attributesOriginal61a8d48b8f86749719c72cd597ee85ea); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal61a8d48b8f86749719c72cd597ee85ea)): ?>
+<?php $component = $__componentOriginal61a8d48b8f86749719c72cd597ee85ea; ?>
+<?php unset($__componentOriginal61a8d48b8f86749719c72cd597ee85ea); ?>
+<?php endif; ?>
 </body>
 </html>
 <?php /**PATH C:\xampp\htdocs\parallelium\resources\views/components/layouts/app.blade.php ENDPATH**/ ?>
