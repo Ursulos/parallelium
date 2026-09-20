@@ -81,6 +81,20 @@ class EmployeeController extends Controller
         return back()->with('status', 'Employé désactivé.');
     }
 
+    public function resendInvite(User $employee, EmployeeService $employeeService)
+    {
+        $this->authorize('employees.manage');
+        $this->ensureSameCompany($employee);
+
+        try {
+            $employeeService->resendInvite($employee);
+        } catch (RuntimeException $e) {
+            return back()->withErrors(['employee' => $e->getMessage()]);
+        }
+
+        return back()->with('status', "Invitation renvoyée à {$employee->email}.");
+    }
+
     /**
      * User n'ayant pas de scope tenant automatique (voir app/Models/User.php),
      * le model binding de route peut résoudre un utilisateur de N'IMPORTE

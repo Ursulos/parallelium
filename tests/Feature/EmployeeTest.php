@@ -109,6 +109,20 @@ class EmployeeTest extends TestCase
         $response->assertDontSee('Employé B');
     }
 
+    public function test_owner_can_resend_an_invitation(): void
+    {
+        $company = Company::factory()->create();
+        $owner = $this->ownerFor($company);
+        $sellerRole = Role::whereNull('company_id')->where('slug', 'seller')->first();
+        $employee = User::factory()->create(['company_id' => $company->id, 'role_id' => $sellerRole->id]);
+
+        $this->actingAs($owner)
+            ->post(route('employees.resend-invite', $employee))
+            ->assertRedirect();
+
+        Notification::assertSentTo($employee, ResetPassword::class);
+    }
+
     public function test_a_company_cannot_edit_or_deactivate_another_companys_employee(): void
     {
         $companyA = Company::factory()->create();

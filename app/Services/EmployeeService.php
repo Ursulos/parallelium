@@ -44,10 +44,34 @@ class EmployeeService
                 'is_active' => true,
             ]);
 
-            Password::sendResetLink(['email' => $user->email]);
+            $this->sendInviteEmail($user);
 
             return $user;
         });
+    }
+
+    /**
+     * Renvoie le lien de définition de mot de passe à un employé déjà
+     * créé — utile si le premier envoi a échoué ou expiré (le lien de
+     * réinitialisation Laravel expire après 60 minutes par défaut).
+     */
+    public function resendInvite(User $employee): void
+    {
+        $this->sendInviteEmail($employee);
+    }
+
+    protected function sendInviteEmail(User $user): void
+    {
+        $status = Password::sendResetLink(['email' => $user->email]);
+
+        // Avec MAIL_MAILER=log (réglage par défaut en local), l'envoi
+        // "réussit" toujours : Laravel écrit l'e-mail dans
+        // storage/logs/laravel.log au lieu de l'envoyer réellement. Ce
+        // n'est un vrai échec que si le broker renvoie autre chose que
+        // RESET_LINK_SENT (ex. limite de taux atteinte).
+        if ($status !== Password::RESET_LINK_SENT) {
+            throw new RuntimeException("Le compte a été créé, mais l'e-mail d'invitation n'a pas pu être envoyé ({$status}). Réessayez depuis la liste des employés.");
+        }
     }
 
     public function update(User $employee, array $data): User

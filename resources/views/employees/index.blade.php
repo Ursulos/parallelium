@@ -46,6 +46,12 @@
                         @can('employees.manage')
                             @unless ($employee->isOwner())
                                 <a href="{{ route('employees.edit', $employee) }}" class="text-sm font-medium text-brand-600 hover:underline">Modifier</a>
+                                @if ($employee->is_active)
+                                    <form method="POST" action="{{ route('employees.resend-invite', $employee) }}">
+                                        @csrf
+                                        <button type="submit" class="text-sm font-medium text-slate-500 hover:underline">Renvoyer l'invitation</button>
+                                    </form>
+                                @endif
                                 @if ($employee->id !== auth()->id())
                                     <form method="POST" action="{{ route('employees.destroy', $employee) }}" onsubmit="return confirm('Désactiver cet employé ?');">
                                         @csrf

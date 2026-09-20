@@ -27,7 +27,28 @@
 <?php endif; ?>
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 </head>
-<body class="min-h-screen bg-slate-50" x-cloak>
+<body class="min-h-screen bg-slate-50 <?php echo e(session('impersonating_admin_id') ? 'pt-9' : ''); ?>" x-cloak>
+    <?php if (isset($component)) { $__componentOriginal81fc2c1cb3a33996210a2d0eb6512684 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal81fc2c1cb3a33996210a2d0eb6512684 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.impersonation-banner','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('impersonation-banner'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal81fc2c1cb3a33996210a2d0eb6512684)): ?>
+<?php $attributes = $__attributesOriginal81fc2c1cb3a33996210a2d0eb6512684; ?>
+<?php unset($__attributesOriginal81fc2c1cb3a33996210a2d0eb6512684); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal81fc2c1cb3a33996210a2d0eb6512684)): ?>
+<?php $component = $__componentOriginal81fc2c1cb3a33996210a2d0eb6512684; ?>
+<?php unset($__componentOriginal81fc2c1cb3a33996210a2d0eb6512684); ?>
+<?php endif; ?>
+
     <div class="flex min-h-screen">
         <?php if (isset($component)) { $__componentOriginaldb4249790d48373143e5b6a3fcfb71cf = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginaldb4249790d48373143e5b6a3fcfb71cf = $attributes; } ?>

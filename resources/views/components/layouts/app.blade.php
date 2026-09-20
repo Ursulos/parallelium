@@ -8,7 +8,9 @@
     <x-pwa-head />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-slate-50" x-cloak>
+<body class="min-h-screen bg-slate-50 {{ session('impersonating_admin_id') ? 'pt-9' : '' }}" x-cloak>
+    <x-impersonation-banner />
+
     <div class="flex min-h-screen">
         <x-app-sidebar />
 

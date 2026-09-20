@@ -16,6 +16,7 @@ factures et rapports, depuis un seul endroit, pensé mobile-first.
 - [Base de données](#base-de-données)
 - [Lancement en local](#lancement-en-local)
 - [Comptes de démonstration](#comptes-de-démonstration)
+- [Configurer l'envoi d'e-mails](#configurer-lenvoi-demails)
 - [Administration plateforme](#administration-plateforme)
 - [Tests](#tests)
 - [Build production](#build-production)
@@ -148,6 +149,52 @@ Puis ouvrez **http://localhost:8000**.
 | Propriétaire | owner@parallelium.demo | password |
 | Manager | manager@parallelium.demo | password |
 | Vendeur | seller@parallelium.demo | password |
+
+---
+
+## Configurer l'envoi d'e-mails
+
+Par défaut, `.env` a `MAIL_MAILER=log` : **aucun e-mail n'est réellement
+envoyé**, Laravel écrit simplement son contenu dans
+`storage/logs/laravel.log`. C'est volontaire pour le développement local,
+mais ça concerne deux fonctionnalités concrètes de Parallelium :
+
+- l'invitation d'un employé (`/employees/create`) — il reçoit normalement
+  un lien pour définir son mot de passe ;
+- "Mot de passe oublié" (`/forgot-password`).
+
+**En local**, pour tester sans configurer de vrai fournisseur : ouvre
+`storage/logs/laravel.log` juste après avoir envoyé une invitation, et
+cherche l'URL `reset-password/...` — copie-la dans ton navigateur.
+
+**Pour que les e-mails partent réellement** (recommandé dès que tu
+partages l'appli avec de vrais utilisateurs), configure un fournisseur
+SMTP dans `.env` :
+
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp-relay.brevo.com
+MAIL_PORT=587
+MAIL_USERNAME=ton-identifiant
+MAIL_PASSWORD=ta-cle-api
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="contact@tondomaine.mg"
+MAIL_FROM_NAME="Parallelium"
+```
+
+[Brevo](https://www.brevo.com) (ex-Sendinblue) a une offre gratuite
+(~300 e-mails/jour), une interface en français, et fonctionne bien depuis
+Madagascar. Gmail SMTP ou Mailtrap (pour tester sans jamais envoyer à de
+vraies adresses) sont aussi des options courantes. Après modification du
+`.env` :
+
+```
+php artisan config:clear
+```
+
+Si un employé n'a pas reçu son invitation à temps (lien expiré au bout de
+60 minutes, ou e-mail perdu), le propriétaire ou un manager peut la
+renvoyer depuis `/employees` → bouton **"Renvoyer l'invitation"**.
 
 ---
 

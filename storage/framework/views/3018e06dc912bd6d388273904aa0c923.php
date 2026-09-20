@@ -11,8 +11,9 @@
 <body class="min-h-screen bg-slate-50">
     <header class="border-b border-slate-100 bg-slate-950">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-            <div class="flex items-center gap-2 text-sm font-extrabold text-white">
-                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-gradient text-sm"><?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 text-sm font-extrabold text-white">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-gradient text-sm"><?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.icon','data' => ['name' => 'logo']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('icon'); ?>
@@ -32,8 +33,17 @@
 <?php $component = $__componentOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
 <?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
 <?php endif; ?></span>
-                Parallelium
-                <span class="ml-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-300">Administration</span>
+                    Parallelium
+                    <span class="ml-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-300">Administration</span>
+                </div>
+
+                <?php if(auth()->guard('admin')->check()): ?>
+                    <nav class="hidden items-center gap-4 text-xs font-medium text-slate-300 sm:flex">
+                        <a href="<?php echo e(route('admin.dashboard')); ?>" class="hover:text-white <?php echo e(request()->routeIs('admin.dashboard') ? 'text-white' : ''); ?>">Dashboard</a>
+                        <a href="<?php echo e(route('admin.companies.index')); ?>" class="hover:text-white <?php echo e(request()->routeIs('admin.companies.*') ? 'text-white' : ''); ?>">Entreprises</a>
+                        <a href="<?php echo e(route('admin.admins.index')); ?>" class="hover:text-white <?php echo e(request()->routeIs('admin.admins.*') ? 'text-white' : ''); ?>">Administrateurs</a>
+                    </nav>
+                <?php endif; ?>
             </div>
 
             <?php if(auth()->guard('admin')->check()): ?>

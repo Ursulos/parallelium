@@ -10,6 +10,8 @@
         </div>
 
         <div class="flex items-center gap-2">
+            <x-button :href="route('admin.companies.edit', $company)" variant="secondary" size="sm">Modifier</x-button>
+
             @if ($company->status === 'active')
                 <form method="POST" action="{{ route('admin.companies.suspend', $company) }}" onsubmit="return confirm('Suspendre cette entreprise ? Ses utilisateurs seront déconnectés.');">
                     @csrf
@@ -19,6 +21,13 @@
                 <form method="POST" action="{{ route('admin.companies.activate', $company) }}">
                     @csrf
                     <x-button type="submit" variant="secondary" size="sm">Réactiver</x-button>
+                </form>
+            @endif
+
+            @if ($company->status !== 'closed')
+                <form method="POST" action="{{ route('admin.companies.close', $company) }}" onsubmit="return confirm('Fermer définitivement cette entreprise ? Cette action est difficilement réversible.');">
+                    @csrf
+                    <x-button type="submit" variant="ghost" size="sm">Fermer définitivement</x-button>
                 </form>
             @endif
         </div>
@@ -61,23 +70,52 @@
         </x-card>
     </div>
 
-    <x-card class="mt-4">
-        <h3 class="mb-3 text-sm font-semibold text-slate-700">Utilisateurs</h3>
-        <div class="divide-y divide-slate-100">
-            @foreach ($company->users as $user)
-                <div class="flex items-center justify-between py-2 text-sm">
-                    <div>
-                        <p class="font-medium text-slate-800">{{ $user->name }}</p>
-                        <p class="text-xs text-slate-400">{{ $user->email }}</p>
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+        <x-card>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Utilisateurs</h3>
+            <div class="divide-y divide-slate-100">
+                @foreach ($company->users as $user)
+                    <div class="flex items-center justify-between py-2 text-sm">
+                        <div>
+                            <p class="font-medium text-slate-800">{{ $user->name }}</p>
+                            <p class="text-xs text-slate-400">{{ $user->email }}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <x-badge tone="brand">{{ $user->role?->name ?? '—' }}</x-badge>
+                            @unless ($user->is_active)
+                                <x-badge tone="danger">Inactif</x-badge>
+                            @endunless
+                            @if ($user->is_active)
+                                <form method="POST" action="{{ route('admin.companies.impersonate', [$company, $user]) }}">
+                                    @csrf
+                                    <button type="submit" class="text-xs font-medium text-brand-600 hover:underline">
+                                        Se connecter en tant que
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <x-badge tone="brand">{{ $user->role?->name ?? '—' }}</x-badge>
-                        @unless ($user->is_active)
-                            <x-badge tone="danger">Inactif</x-badge>
-                        @endunless
-                    </div>
+                @endforeach
+            </div>
+        </x-card>
+
+        <x-card>
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">Activité récente</h3>
+            @if ($recentActivity->isEmpty())
+                <p class="text-sm text-slate-400">Aucune action administrative enregistrée pour l'instant.</p>
+            @else
+                <div class="divide-y divide-slate-100">
+                    @foreach ($recentActivity as $log)
+                        <div class="py-2 text-sm">
+                            <p class="text-slate-700">{{ str_replace('admin.', '', $log->action) }}</p>
+                            <p class="text-xs text-slate-400">
+                                {{ $log->created_at->format('d/m/Y H:i') }}
+                                @if ($log->properties['admin_email'] ?? null) · {{ $log->properties['admin_email'] }} @endif
+                            </p>
+                        </div>
+                    @endforeach
                 </div>
-            @endforeach
-        </div>
-    </x-card>
+            @endif
+        </x-card>
+    </div>
 </x-layouts.admin>
