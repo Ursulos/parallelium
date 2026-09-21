@@ -52,48 +52,80 @@ return [
     | Tarification (Ariary, TTC) pensée pour le marché malgache :
     | le SMIG 2026 est de 300 000 Ar/mois et la médiane du secteur formel
     | se situe autour de 300 000-1 000 000 Ar/mois (source : GEM/Fivmpama/
-    | CTM, accord du 9 février 2026 ; INSTAT). Objectif explicite du
-    | produit : maximiser le nombre de clients, donc un palier gratuit
-    | réellement utilisable, et un premier palier payant abordable
-    | (~5 % du SMIG/mois, soit moins de 700 Ar/jour) avant un palier
-    | "Business" pour les commerces multi-employés. Prix annuel = 10 mois
-    | payés sur 12 (2 mois offerts), pour encourager la rétention malgré
-    | l'absence de prélèvement automatique en V1 (paiement mobile money
-    | manuel pour l'instant — voir §32 du cahier des charges).
+    | CTM, accord du 9 février 2026 ; INSTAT).
+    |
+    | La tarification n'est PAS uniforme entre petites et grosses
+    | structures, mais ça ne se joue jamais sur une déclaration de taille
+    | d'entreprise (jamais demandé, jamais affiché) : ça se joue sur les
+    | LIMITES D'USAGE (produits, utilisateurs, ventes/mois), qui sont un
+    | indicateur naturel et déjà mesuré par l'appli (voir
+    | SubscriptionService::currentCount). Une petite épicerie ne
+    | s'approchera jamais des plafonds de Starter ; un grossiste à fort
+    | volume dépassera naturellement Business et devra passer sur le
+    | palier "Entreprise" (sur devis, jamais en libre-service — voir
+    | 'self_service' ci-dessous) pour continuer. C'est le mécanisme, pas
+    | le discours : à aucun moment l'interface ne mentionne la taille de
+    | l'entreprise.
+    |
+    | Prix annuel = 10 mois payés sur 12 (2 mois offerts), pour encourager
+    | la rétention malgré l'absence de prélèvement automatique en V1
+    | (paiement mobile money manuel pour l'instant — voir §32 du cahier
+    | des charges).
     |
     */
     'plans' => [
         'free' => [
             'label' => 'Free',
-            'tagline' => 'Pour démarrer sans risque, à vie.',
+            'tagline' => 'Pour tester sans risque.',
             'price' => 0,
             'price_yearly' => 0,
+            'self_service' => true,
             'limits' => [
-                'products' => 50,
+                'products' => 20,
                 'users' => 1,
-                'customers' => 100,
-                'sales_per_month' => 100,
+                'customers' => 30,
+                'sales_per_month' => 20,
             ],
             'features' => ['dashboard', 'sales', 'products', 'customers'],
         ],
         'starter' => [
             'label' => 'Starter',
-            'tagline' => 'Pour une boutique qui vend tous les jours.',
-            'price' => 15000,
-            'price_yearly' => 150000,
+            'tagline' => 'Pour une petite boutique qui vend tous les jours.',
+            'price' => 19900,
+            'price_yearly' => 199000,
+            'self_service' => true,
             'limits' => [
-                'products' => 500,
-                'users' => 3,
-                'customers' => null,
-                'sales_per_month' => null,
+                'products' => 300,
+                'users' => 2,
+                'customers' => 300,
+                'sales_per_month' => 300,
             ],
             'features' => ['dashboard', 'sales', 'products', 'customers', 'expenses', 'invoices', 'reports'],
         ],
         'business' => [
             'label' => 'Business',
             'tagline' => 'Pour un commerce avec plusieurs employés.',
-            'price' => 45000,
-            'price_yearly' => 450000,
+            'price' => 49900,
+            'price_yearly' => 499000,
+            'self_service' => true,
+            'limits' => [
+                'products' => 3000,
+                'users' => 8,
+                'customers' => null,
+                'sales_per_month' => 3000,
+            ],
+            'features' => ['dashboard', 'sales', 'products', 'customers', 'expenses', 'invoices', 'reports', 'advanced_reports', 'employees'],
+        ],
+        'enterprise' => [
+            'label' => 'Entreprise',
+            'tagline' => 'Volume important, besoins sur mesure.',
+            // Pas de prix catalogue : jamais affiché ni sélectionnable
+            // en libre-service (voir 'self_service'). Assigné uniquement
+            // depuis le panneau admin plateforme, en accord manuel avec
+            // l'entreprise (négociation, pas un tarif public).
+            'price' => null,
+            'price_yearly' => null,
+            'self_service' => false,
             'limits' => [
                 'products' => null,
                 'users' => null,

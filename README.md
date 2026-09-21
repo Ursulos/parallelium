@@ -17,6 +17,7 @@ factures et rapports, depuis un seul endroit, pensé mobile-first.
 - [Lancement en local](#lancement-en-local)
 - [Comptes de démonstration](#comptes-de-démonstration)
 - [Configurer l'envoi d'e-mails](#configurer-lenvoi-demails)
+- [Tarification](#tarification)
 - [Administration plateforme](#administration-plateforme)
 - [Tests](#tests)
 - [Build production](#build-production)
@@ -198,6 +199,34 @@ renvoyer depuis `/employees` → bouton **"Renvoyer l'invitation"**.
 
 ---
 
+## Tarification
+
+| Plan | Prix | Produits | Utilisateurs | Clients | Ventes/mois |
+|---|---|---|---|---|---|
+| Free | Gratuit | 20 | 1 | 30 | 20 |
+| Starter | 19 900 Ar/mois (199 000 Ar/an) | 300 | 2 | 300 | 300 |
+| Business | 49 900 Ar/mois (499 000 Ar/an) | 3 000 | 8 | Illimités | 3 000 |
+| Entreprise | Sur devis | Illimités | Illimités | Illimités | Illimités |
+
+Le plan **Entreprise n'est jamais affiché ni sélectionnable en
+libre-service** (`self_service: false` dans `config/parallelium.php`) —
+il ne s'assigne que manuellement depuis le panneau admin plateforme
+(`/admin/companies/{id}`), après une négociation directe.
+
+**Principe de conception** : la tarification n'est volontairement pas
+uniforme entre une petite épicerie et un grossiste à fort volume, mais ça
+ne se décide jamais sur une déclaration de taille d'entreprise — l'appli
+ne demande jamais "combien de salariés avez-vous ?". Ça se joue
+uniquement sur les **limites d'usage déjà mesurées** par
+`SubscriptionService` (produits, utilisateurs, ventes/mois). Une petite
+structure n'approche jamais les plafonds de Starter ; un gros volume finit
+naturellement par dépasser Business et doit alors passer par un
+accompagnement sur mesure pour continuer — jamais un message du type "vous
+êtes une grande entreprise", juste une limite technique honnête suivie
+d'une invitation à échanger.
+
+---
+
 ## Administration plateforme
 
 Un panneau **admin plateforme** (l'éditeur de Parallelium), distinct des
@@ -315,7 +344,8 @@ fourni en amont). Ne jamais passer à la phase suivante avec des erreurs connues
 - [x] **Phase 9 — Rapports** : ventes/dépenses/produits/clients, filtres
       de période, export CSV et PDF.
 - [x] **Phase 10 — Abonnements** : SubscriptionService centralisé, page
-      Paramètres/tarification (Free / Starter 15 000 Ar / Business 45 000 Ar).
+      Paramètres/tarification (Free / Starter 19 900 Ar / Business 49 900 Ar
+      / Entreprise sur devis, non affiché — voir §Tarification ci-dessous).
 - [x] **Phase 11 — PWA avancée** : page hors-ligne honnête, bannière
       d'installation (Android + iOS), détection de mise à jour, shortcuts.
 - [x] **Phase 12 — Tests, sécurité, optimisation, polish** : voir

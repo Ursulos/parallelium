@@ -61,6 +61,7 @@
 
         <div class="grid gap-4 sm:grid-cols-3">
             @foreach ($plans as $slug => $plan)
+                @continue(! ($plan['self_service'] ?? false))
                 @php($isCurrent = $company->subscription->plan === $slug)
                 <div class="relative flex flex-col rounded-2xl border-2 bg-white p-5 {{ $isCurrent ? 'border-brand-500 shadow-lg shadow-brand-500/10' : 'border-slate-100' }}">
                     @if ($isCurrent)
@@ -112,6 +113,20 @@
                 </div>
             @endforeach
         </div>
+
+        @if ($company->subscription->plan === 'enterprise')
+            <x-alert type="info" class="mt-4">
+                Votre entreprise bénéficie d'un accompagnement sur mesure (plan Entreprise). Pour toute question sur votre forfait, contactez le support Parallelium.
+            </x-alert>
+        @else
+            <div class="mt-4 flex items-center justify-between rounded-2xl border border-dashed border-slate-200 px-5 py-4">
+                <div>
+                    <p class="text-sm font-semibold text-slate-700">Besoin de plus ?</p>
+                    <p class="text-xs text-slate-400">Volume important, plusieurs points de vente, besoins spécifiques — parlons-en.</p>
+                </div>
+                <x-button href="mailto:contact@parallelium.app?subject=Besoin%20d%27un%20plan%20sur%20mesure" variant="ghost" size="sm">Nous contacter</x-button>
+            </div>
+        @endif
 
         <p class="mt-4 text-xs text-slate-400">
             Paiement par MVola, Orange Money, Airtel Money ou virement — un conseiller vous contacte après le changement de plan pour confirmer le règlement. L'intégration du paiement en ligne est prévue pour une prochaine version.

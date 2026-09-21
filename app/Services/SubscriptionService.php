@@ -36,9 +36,22 @@ class SubscriptionService
 
         if ($current >= $limit) {
             $label = $this->resourceLabel($resource);
-            throw new RuntimeException(
-                "Le plan {$company->subscription->planConfig()['label']} autorise au maximum {$limit} {$label}. Passez à un plan supérieur pour continuer."
-            );
+            $planLabel = $company->subscription->planConfig()['label'];
+
+            // Le plan courant a-t-il un palier supérieur en libre-service
+            // au-dessus de lui ? Sinon (déjà sur le plus haut plan
+            // "self_service"), on oriente vers un accompagnement plutôt
+            // que vers un bouton "changer de plan" qui n'existerait pas —
+            // c'est ce mécanisme, jamais un message explicite, qui fait
+            // qu'un gros volume finit par coûter plus cher.
+            $selfServicePlans = collect(config('parallelium.plans'))->filter(fn ($p) => $p['self_service'] ?? false)->keys();
+            $hasHigherSelfServicePlan = $selfServicePlans->last() !== $company->subscription->plan;
+
+            $suggestion = $hasHigherSelfServicePlan
+                ? 'Passez à un plan supérieur pour continuer.'
+                : 'Votre activité dépasse les paliers standards : contactez-nous pour un accompagnement sur mesure.';
+
+            throw new RuntimeException("Le plan {$planLabel} autorise au maximum {$limit} {$label}. {$suggestion}");
         }
     }
 
