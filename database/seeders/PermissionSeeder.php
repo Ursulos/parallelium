@@ -10,7 +10,7 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $groups = [
-            'dashboard' => ['view'],
+            'dashboard' => ['view', 'revenue'],
             'products' => ['view', 'create', 'update', 'delete'],
             'stock' => ['view', 'manage'],
             'customers' => ['view', 'create', 'update', 'delete'],

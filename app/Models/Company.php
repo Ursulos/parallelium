@@ -80,6 +80,21 @@ class Company extends Model
     }
 
     /**
+     * Le champ business_type peut contenir soit un mot-clé de catalogue
+     * standard (ex. "epicerie_ppn"), soit un texte libre saisi via
+     * "Autre" à l'onboarding. Ce helper affiche toujours un libellé
+     * lisible, jamais le mot-clé brut.
+     */
+    public function businessTypeLabel(): ?string
+    {
+        if (! $this->business_type) {
+            return null;
+        }
+
+        return \App\Services\BusinessCatalogService::options()[$this->business_type] ?? $this->business_type;
+    }
+
+    /**
      * Numéro de document suivant (facture, vente, dépense), unique par
      * entreprise. Incrémente atomiquement le compteur correspondant.
      */

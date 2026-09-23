@@ -17,10 +17,10 @@
         <p class="mb-4 text-sm font-semibold text-slate-500">Action rapide</p>
 
         <div class="grid grid-cols-2 gap-3">
-            <x-quick-action-item route-name="sales.create" icon="sales" label="Nouvelle vente" />
-            <x-quick-action-item route-name="expenses.create" icon="expenses" label="Nouvelle dépense" />
-            <x-quick-action-item route-name="customers.create" icon="customers" label="Nouveau client" />
-            <x-quick-action-item route-name="products.create" icon="products" label="Ajouter produit" />
+            <x-quick-action-item route-name="sales.create" icon="sales" label="Nouvelle vente" permission="sales.create" />
+            <x-quick-action-item route-name="expenses.create" icon="expenses" label="Nouvelle dépense" permission="expenses.create" />
+            <x-quick-action-item route-name="customers.create" icon="customers" label="Nouveau client" permission="customers.create" />
+            <x-quick-action-item route-name="products.create" icon="products" label="Ajouter produit" permission="products.create" />
         </div>
     </div>
 </div>

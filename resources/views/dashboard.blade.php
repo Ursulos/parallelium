@@ -1,35 +1,50 @@
 <x-layouts.app title="Tableau de bord">
+    @php
+        $canSeeRevenue = auth()->user()->can('dashboard.revenue');
+        $canSeeExpenses = auth()->user()->can('expenses.view');
+    @endphp
+
     <div class="mb-5">
         <h2 class="text-xl font-bold text-slate-900">Bonjour {{ explode(' ', auth()->user()->name)[0] }}</h2>
         <p class="text-sm text-slate-500">Voici un aperçu de {{ $company->name }}.</p>
     </div>
 
-    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <x-stat-card label="Chiffre d'affaires (jour)" :value="\App\Support\Money::format($kpis['revenue_today'])" icon="money">
-            @if (! is_null($kpis['revenue_today_change']))
-                <x-slot:trend>
-                    <span class="{{ $kpis['revenue_today_change'] >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
-                        {{ $kpis['revenue_today_change'] >= 0 ? '+' : '' }}{{ $kpis['revenue_today_change'] }}% vs hier
-                    </span>
-                </x-slot:trend>
-            @endif
-        </x-stat-card>
-        <x-stat-card label="Chiffre d'affaires (mois)" :value="\App\Support\Money::format($kpis['revenue_month'])" icon="revenue">
-            @if (! is_null($kpis['revenue_month_change']))
-                <x-slot:trend>
-                    <span class="{{ $kpis['revenue_month_change'] >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
-                        {{ $kpis['revenue_month_change'] >= 0 ? '+' : '' }}{{ $kpis['revenue_month_change'] }}% vs mois dernier
-                    </span>
-                </x-slot:trend>
-            @endif
-        </x-stat-card>
-        <x-stat-card label="Dépenses (mois)" :value="\App\Support\Money::format($kpis['expenses_month'])" icon="expenses" />
-        <x-stat-card label="Résultat estimé" :value="\App\Support\Money::format($kpis['estimated_result'])" tone="brand" icon="result" />
-    </div>
+    @if ($canSeeRevenue || $canSeeExpenses)
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            @can('dashboard.revenue')
+                <x-stat-card label="Chiffre d'affaires (jour)" :value="\App\Support\Money::format($kpis['revenue_today'])" icon="money">
+                    @if (! is_null($kpis['revenue_today_change']))
+                        <x-slot:trend>
+                            <span class="{{ $kpis['revenue_today_change'] >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
+                                {{ $kpis['revenue_today_change'] >= 0 ? '+' : '' }}{{ $kpis['revenue_today_change'] }}% vs hier
+                            </span>
+                        </x-slot:trend>
+                    @endif
+                </x-stat-card>
+                <x-stat-card label="Chiffre d'affaires (mois)" :value="\App\Support\Money::format($kpis['revenue_month'])" icon="revenue">
+                    @if (! is_null($kpis['revenue_month_change']))
+                        <x-slot:trend>
+                            <span class="{{ $kpis['revenue_month_change'] >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
+                                {{ $kpis['revenue_month_change'] >= 0 ? '+' : '' }}{{ $kpis['revenue_month_change'] }}% vs mois dernier
+                            </span>
+                        </x-slot:trend>
+                    @endif
+                </x-stat-card>
+            @endcan
+            @can('expenses.view')
+                <x-stat-card label="Dépenses (mois)" :value="\App\Support\Money::format($kpis['expenses_month'])" icon="expenses" />
+            @endcan
+            @can('dashboard.revenue')
+                <x-stat-card label="Résultat estimé" :value="\App\Support\Money::format($kpis['estimated_result'])" tone="brand" icon="result" />
+            @endcan
+        </div>
 
-    <p class="mt-3 text-xs text-slate-400">
-        Le résultat affiché est un indicateur de gestion interne, pas un résultat comptable officiel.
-    </p>
+        @can('dashboard.revenue')
+            <p class="mt-3 text-xs text-slate-400">
+                Le résultat affiché est un indicateur de gestion interne, pas un résultat comptable officiel.
+            </p>
+        @endcan
+    @endif
 
     <div class="mt-6 grid gap-4 lg:grid-cols-3">
         <x-card class="lg:col-span-2" :padded="false">
@@ -92,90 +107,108 @@
         </x-card>
     </div>
 
-    <div class="mt-4 grid gap-4 lg:grid-cols-2">
-        <x-card>
-            <h3 class="text-sm font-semibold text-slate-700">Créances clients</h3>
-            @if ($kpis['receivables'] > 0)
-                <p class="mt-3 text-2xl font-bold text-amber-600"><x-money :amount="$kpis['receivables']" /></p>
-                <p class="mt-1 text-xs text-slate-400">Montant restant à encaisser sur les ventes à crédit.</p>
-            @elseif ($kpis['customers_count'] > 0)
-                <div class="mt-3 flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-sm">
-                    <span class="text-slate-600">{{ $kpis['customers_count'] }} client{{ $kpis['customers_count'] > 1 ? 's' : '' }} enregistré{{ $kpis['customers_count'] > 1 ? 's' : '' }}, aucune créance en cours.</span>
-                </div>
-            @else
-                <x-empty-state class="mt-4" icon="customers" title="Aucun client pour le moment." description="Ajoutez votre premier client pour commencer." />
-            @endif
-        </x-card>
+    @if ($canSeeRevenue || $canSeeExpenses)
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+            @can('dashboard.revenue')
+                <x-card>
+                    <h3 class="text-sm font-semibold text-slate-700">Créances clients</h3>
+                    @if ($kpis['receivables'] > 0)
+                        <p class="mt-3 text-2xl font-bold text-amber-600"><x-money :amount="$kpis['receivables']" /></p>
+                        <p class="mt-1 text-xs text-slate-400">Montant restant à encaisser sur les ventes à crédit.</p>
+                    @elseif ($kpis['customers_count'] > 0)
+                        <div class="mt-3 flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-sm">
+                            <span class="text-slate-600">{{ $kpis['customers_count'] }} client{{ $kpis['customers_count'] > 1 ? 's' : '' }} enregistré{{ $kpis['customers_count'] > 1 ? 's' : '' }}, aucune créance en cours.</span>
+                        </div>
+                    @else
+                        <x-empty-state class="mt-4" icon="customers" title="Aucun client pour le moment." description="Ajoutez votre premier client pour commencer." />
+                    @endif
+                </x-card>
+            @endcan
 
-        <x-card>
-            <h3 class="text-sm font-semibold text-slate-700">Dernières dépenses</h3>
-            @if ($recentExpenses->isEmpty())
-                <x-empty-state class="mt-4" icon="expenses" title="Aucune dépense pour le moment." description="Enregistrez votre première dépense pour la voir apparaître ici." />
-            @else
-                <div class="mt-3 space-y-2">
-                    @foreach ($recentExpenses as $expense)
-                        <a href="{{ route('expenses.index') }}" class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50">
-                            <span class="text-slate-600">{{ $expense->category->label() }}</span>
-                            <span class="font-semibold text-slate-800"><x-money :amount="$expense->amount" /></span>
+            @can('expenses.view')
+                <x-card>
+                    <h3 class="text-sm font-semibold text-slate-700">Dernières dépenses</h3>
+                    @if ($recentExpenses->isEmpty())
+                        <x-empty-state class="mt-4" icon="expenses" title="Aucune dépense pour le moment." description="Enregistrez votre première dépense pour la voir apparaître ici." />
+                    @else
+                        <div class="mt-3 space-y-2">
+                            @foreach ($recentExpenses as $expense)
+                                <a href="{{ route('expenses.index') }}" class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50">
+                                    <span class="text-slate-600">{{ $expense->category->label() }}</span>
+                                    <span class="font-semibold text-slate-800"><x-money :amount="$expense->amount" /></span>
+                                </a>
+                            @endforeach
+                        </div>
+                        <a href="{{ route('expenses.index') }}" class="mt-3 block text-center text-xs font-medium text-brand-600 hover:underline">
+                            Voir toutes les dépenses
                         </a>
-                    @endforeach
-                </div>
-                <a href="{{ route('expenses.index') }}" class="mt-3 block text-center text-xs font-medium text-brand-600 hover:underline">
-                    Voir toutes les dépenses
-                </a>
-            @endif
-        </x-card>
-    </div>
+                    @endif
+                </x-card>
+            @endcan
+        </div>
+    @endif
 
-    <div class="mt-6 grid gap-4 lg:grid-cols-2">
-        <x-card>
-            <h3 class="mb-3 text-sm font-semibold text-slate-700">Chiffre d'affaires — 7 derniers jours</h3>
-            @if (collect($charts['salesLast7Days'])->sum('total') > 0)
-                <canvas id="chart-sales-7d" height="180"></canvas>
-            @else
-                <p class="py-8 text-center text-sm text-slate-400">Pas encore de ventes cette semaine.</p>
-            @endif
-        </x-card>
+    @if ($canSeeRevenue || $canSeeExpenses || count($charts['topProducts']) > 0)
+        <div class="mt-6 grid gap-4 lg:grid-cols-2">
+            @can('dashboard.revenue')
+                <x-card>
+                    <h3 class="mb-3 text-sm font-semibold text-slate-700">Chiffre d'affaires — 7 derniers jours</h3>
+                    @if (collect($charts['salesLast7Days'])->sum('total') > 0)
+                        <canvas id="chart-sales-7d" height="180"></canvas>
+                    @else
+                        <p class="py-8 text-center text-sm text-slate-400">Pas encore de ventes cette semaine.</p>
+                    @endif
+                </x-card>
+            @endcan
 
-        <x-card>
-            <h3 class="mb-3 text-sm font-semibold text-slate-700">Top produits vendus (ce mois-ci)</h3>
-            @if (count($charts['topProducts']) > 0)
-                <canvas id="chart-top-products" height="180"></canvas>
-            @else
-                <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
-            @endif
-        </x-card>
+            <x-card>
+                <h3 class="mb-3 text-sm font-semibold text-slate-700">Top produits vendus (ce mois-ci)</h3>
+                @if (count($charts['topProducts']) > 0)
+                    <canvas id="chart-top-products" height="180"></canvas>
+                @else
+                    <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
+                @endif
+            </x-card>
 
-        <x-card>
-            <h3 class="mb-3 text-sm font-semibold text-slate-700">Ventes par catégorie (ce mois-ci)</h3>
-            @if (count($charts['salesByCategory']) > 0)
-                <canvas id="chart-sales-category" height="200"></canvas>
-            @else
-                <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
-            @endif
-        </x-card>
+            @can('dashboard.revenue')
+                <x-card>
+                    <h3 class="mb-3 text-sm font-semibold text-slate-700">Ventes par catégorie (ce mois-ci)</h3>
+                    @if (count($charts['salesByCategory']) > 0)
+                        <canvas id="chart-sales-category" height="200"></canvas>
+                    @else
+                        <p class="py-8 text-center text-sm text-slate-400">Aucune vente ce mois-ci.</p>
+                    @endif
+                </x-card>
+            @endcan
 
-        <x-card>
-            <h3 class="mb-3 text-sm font-semibold text-slate-700">Dépenses par catégorie (ce mois-ci)</h3>
-            @if (count($charts['expensesByCategory']) > 0)
-                <canvas id="chart-expenses-category" height="200"></canvas>
-            @else
-                <p class="py-8 text-center text-sm text-slate-400">Aucune dépense ce mois-ci.</p>
-            @endif
-        </x-card>
-    </div>
+            @can('expenses.view')
+                <x-card>
+                    <h3 class="mb-3 text-sm font-semibold text-slate-700">Dépenses par catégorie (ce mois-ci)</h3>
+                    @if (count($charts['expensesByCategory']) > 0)
+                        <canvas id="chart-expenses-category" height="200"></canvas>
+                    @else
+                        <p class="py-8 text-center text-sm text-slate-400">Aucune dépense ce mois-ci.</p>
+                    @endif
+                </x-card>
+            @endcan
+        </div>
+    @endif
 
-    @if (collect($charts['salesLast7Days'])->sum('total') > 0 || count($charts['topProducts']) > 0 || count($charts['salesByCategory']) > 0 || count($charts['expensesByCategory']) > 0)
+    @if (($canSeeRevenue && collect($charts['salesLast7Days'])->sum('total') > 0) || count($charts['topProducts']) > 0 || ($canSeeRevenue && count($charts['salesByCategory']) > 0) || ($canSeeExpenses && count($charts['expensesByCategory']) > 0))
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" integrity="sha512-e3nkTaqZ4qhAtI22fMPCH7ELiC4qhBQCiCTgKXWBTx6jHU0y3TKO5+ez+IEK9nnMx7DdMg0jZQBcwSj2Hn45Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const brand = '#6a35c2';
                 const palette = ['#6a35c2', '#c22fb0', '#8760d1', '#dd5ed0', '#481f89', '#f5bff0'];
 
-                const sales7d = @json($charts['salesLast7Days']);
+                // Les données financières (CA, dépenses) ne sont sérialisées
+                // dans la page QUE si l'utilisateur a la permission
+                // correspondante — jamais envoyées "cachées" dans le HTML
+                // pour un rôle qui ne devrait pas les voir.
+                const sales7d = {!! $canSeeRevenue ? \Illuminate\Support\Js::from($charts['salesLast7Days']) : '[]' !!};
                 const topProducts = @json($charts['topProducts']);
-                const salesByCategory = @json($charts['salesByCategory']);
-                const expensesByCategory = @json($charts['expensesByCategory']);
+                const salesByCategory = {!! $canSeeRevenue ? \Illuminate\Support\Js::from($charts['salesByCategory']) : '[]' !!};
+                const expensesByCategory = {!! $canSeeExpenses ? \Illuminate\Support\Js::from($charts['expensesByCategory']) : '[]' !!};
 
                 const el7d = document.getElementById('chart-sales-7d');
                 if (el7d) {

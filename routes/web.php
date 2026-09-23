@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('onboarding')->name('onboarding.')->group(function () {
         Route::get('/', [OnboardingController::class, 'show'])->name('show');
         Route::put('/', [OnboardingController::class, 'update'])->name('update');
+        Route::post('seed-catalog', [OnboardingController::class, 'seedCatalog'])->name('seed-catalog');
         Route::post('finish', [OnboardingController::class, 'finish'])->name('finish');
         Route::post('skip', [OnboardingController::class, 'skip'])->name('skip');
     });

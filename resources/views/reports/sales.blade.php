@@ -5,6 +5,7 @@
             <p class="text-sm text-slate-500">{{ ucfirst($periodLabel) }} — du {{ $from->format('d/m/Y') }} au {{ $to->format('d/m/Y') }}</p>
         </div>
         <div class="flex items-center gap-2">
+            <x-button :href="route('reports.sales', ['compare' => 1])" variant="secondary" size="sm">Comparer deux périodes</x-button>
             <x-button :href="route('reports.sales', array_merge(request()->query(), ['export' => 'csv']))" variant="secondary" size="sm">Export CSV</x-button>
             <x-button :href="route('reports.sales', array_merge(request()->query(), ['export' => 'pdf']))" variant="ghost" size="sm">Export PDF</x-button>
         </div>

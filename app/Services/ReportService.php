@@ -37,6 +37,53 @@ class ReportService
         };
     }
 
+    /**
+     * Deuxième période, pour la comparaison de ventes. Toujours des dates
+     * personnalisées explicites (le principe même de la comparaison), pas
+     * de raccourcis "aujourd'hui/semaine/mois" — on laisse l'utilisateur
+     * choisir exactement les deux plages à confronter.
+     *
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    public function resolvePeriodB(Request $request): array
+    {
+        $from = $request->filled('from_b')
+            ? Carbon::parse($request->date('from_b'))->startOfDay()
+            : now()->subMonthNoOverflow()->startOfMonth();
+
+        $to = $request->filled('to_b')
+            ? Carbon::parse($request->date('to_b'))->endOfDay()
+            : now()->subMonthNoOverflow()->endOfMonth();
+
+        return [$from, $to];
+    }
+
+    public function compareSales(Carbon $fromA, Carbon $toA, Carbon $fromB, Carbon $toB): array
+    {
+        $a = $this->salesReport($fromA, $toA);
+        $b = $this->salesReport($fromB, $toB);
+
+        return [
+            'a' => $a,
+            'b' => $b,
+            'revenue_change' => $this->percentChange($b['revenue'], $a['revenue']),
+            'count_change' => $this->percentChange($b['count'], $a['count']),
+        ];
+    }
+
+    /**
+     * Variation en pourcentage entre deux périodes, ou null si la
+     * période de référence est à zéro (comparaison non pertinente).
+     */
+    protected function percentChange(float $previous, float $current): ?float
+    {
+        if ($previous <= 0) {
+            return null;
+        }
+
+        return round((($current - $previous) / $previous) * 100, 1);
+    }
+
     public function salesReport(Carbon $from, Carbon $to): array
     {
         $sales = Sale::completed()->whereBetween('sold_at', [$from, $to]);

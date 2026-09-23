@@ -20,6 +20,14 @@ class ReportController extends Controller
     {
         $this->authorize('reports.view');
 
+        if ($request->boolean('compare')) {
+            [$fromA, $toA, $periodLabel] = $reportService->resolvePeriod($request);
+            [$fromB, $toB] = $reportService->resolvePeriodB($request);
+            $comparison = $reportService->compareSales($fromA, $toA, $fromB, $toB);
+
+            return view('reports.sales-compare', compact('comparison', 'fromA', 'toA', 'fromB', 'toB'));
+        }
+
         [$from, $to, $periodLabel] = $reportService->resolvePeriod($request);
         $report = $reportService->salesReport($from, $to);
 

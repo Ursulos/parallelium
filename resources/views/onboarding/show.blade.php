@@ -3,13 +3,36 @@
     <h1 class="mt-1 text-2xl font-bold text-slate-900">Bienvenue sur Parallelium</h1>
     <p class="mt-2 text-sm text-slate-500">Parlez-nous un peu de {{ $company->name }} pour personnaliser votre espace.</p>
 
-    <form method="POST" action="{{ route('onboarding.update') }}" class="mt-6 space-y-4">
+    @if (session('status'))
+        <x-alert type="success" class="mt-4">{{ session('status') }}</x-alert>
+    @endif
+
+    @php
+        $isKnownType = array_key_exists($company->business_type, $businessTypes);
+        $selected = old('business_type', $isKnownType ? $company->business_type : ($company->business_type ? 'autre' : null));
+    @endphp
+
+    <form method="POST" action="{{ route('onboarding.update') }}" class="mt-6 space-y-4" x-data="{ type: '{{ $selected }}' }">
         @csrf
         @method('PUT')
 
         <div>
             <x-label for="business_type">Type d'activité</x-label>
-            <x-input id="business_type" name="business_type" value="{{ old('business_type', $company->business_type) }}" placeholder="Ex. Épicerie, boutique, atelier..." />
+            <select id="business_type" name="business_type" x-model="type" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand-400">
+                <option value="">Sélectionner...</option>
+                @foreach ($businessTypes as $slug => $label)
+                    <option value="{{ $slug }}" @selected($selected === $slug)>{{ $label }}</option>
+                @endforeach
+                <option value="autre" @selected($selected === 'autre')>Autre</option>
+            </select>
+            <p class="mt-1 text-xs text-slate-400">
+                On vous proposera une liste de produits standards à ajouter selon votre choix.
+            </p>
+        </div>
+
+        <div x-show="type === 'autre'" x-cloak>
+            <x-label for="business_type_other">Précisez votre activité</x-label>
+            <x-input id="business_type_other" name="business_type_other" value="{{ old('business_type_other', $isKnownType ? '' : $company->business_type) }}" placeholder="Ex. Atelier de couture, salon de coiffure..." />
         </div>
 
         <div>
@@ -28,6 +51,20 @@
 
         <x-button type="submit" class="w-full justify-center" size="lg">Enregistrer</x-button>
     </form>
+
+    @if ($isKnownType)
+        <x-card class="mt-4">
+            <p class="text-sm font-semibold text-slate-700">Produits standards disponibles</p>
+            <p class="mt-1 text-xs text-slate-500">
+                Nous avons une liste de produits courants pour « {{ $businessTypes[$company->business_type] }} ».
+                Sans prix ni référence — à vous de les compléter ensuite selon vos fournisseurs.
+            </p>
+            <form method="POST" action="{{ route('onboarding.seed-catalog') }}" class="mt-3">
+                @csrf
+                <x-button type="submit" variant="secondary" size="sm">Ajouter ces produits à mon catalogue</x-button>
+            </form>
+        </x-card>
+    @endif
 
     <form method="POST" action="{{ route('onboarding.finish') }}" class="mt-3">
         @csrf
