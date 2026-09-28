@@ -30,6 +30,15 @@ class Customer extends Model
         return $this->hasMany(Sale::class);
     }
 
+    /**
+     * Ventes du module "Suivi commercial" — distinct des ventes du module
+     * Ventes/Stock (voir §23 du cahier des charges de ce module).
+     */
+    public function commercialSales(): HasMany
+    {
+        return $this->hasMany(CommercialSale::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);

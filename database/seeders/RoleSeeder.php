@@ -45,6 +45,8 @@ class RoleSeeder extends Seeder
                 'customers.update',
                 'sales.view',
                 'sales.create',
+                'commercial.view_own',
+                'commercial.enter_sales',
             ])->pluck('id')
         );
 

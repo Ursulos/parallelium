@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -54,6 +55,16 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Fiche "commercial" éventuellement associée à ce compte (module
+     * Suivi commercial) — permet à un Vendeur connecté de retrouver ses
+     * propres performances (§2 : jamais celles des autres équipes).
+     */
+    public function commercialProfile(): HasOne
+    {
+        return $this->hasOne(Commercial::class, 'user_id');
     }
 
     /**

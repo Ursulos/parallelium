@@ -20,6 +20,11 @@ class PermissionSeeder extends Seeder
             'reports' => ['view'],
             'employees' => ['view', 'manage'],
             'settings' => ['manage'],
+            // Module "Suivi commercial" : view = toute l'équipe (Owner/
+            // Manager) ; view_own = seulement ses propres performances
+            // (Vendeur/Commercial) ; manage = commerciaux/secteurs/villes/
+            // objectifs ; enter_sales = saisir des ventes commerciales.
+            'commercial' => ['view', 'view_own', 'manage', 'enter_sales'],
         ];
 
         foreach ($groups as $group => $actions) {
